@@ -59,6 +59,16 @@ class UserList(Resource):
         db.session.commit()
         return serialize_user(user), 200
 
+    def patch(self, id):
+        user = User.query.get_or_404(id)
+        data = request.get_json()
+        if 'name' in data:
+            user.name = data['name']
+        if 'email' in data:
+            user.email = data['email']
+        db.session.commit()
+        return serialize_user(user), 200
+
     def delete(self, id):
         user = User.query.get_or_404(id)
         db.session.delete(user)
@@ -82,6 +92,18 @@ class BookList(Resource):
         book.title = data.get('title', book.title)
         book.author = data.get('author', book.author)
         book.available_copies = data.get('available_copies', book.available_copies)
+        db.session.commit()
+        return serialize_book(book), 200
+
+    def patch(self, id):
+        book = Book.query.get_or_404(id)
+        data = request.get_json()
+        if 'title' in data:
+            book.title = data['title']
+        if 'author' in data:
+            book.author = data['author']
+        if 'available_copies' in data:
+            book.available_copies = data['available_copies']
         db.session.commit()
         return serialize_book(book), 200
 
@@ -117,6 +139,16 @@ class BorrowList(Resource):
         data = request.get_json()
         borrow.status = data.get('status', borrow.status)
         borrow.return_date = datetime.fromisoformat(data['return_date']) if data.get('return_date') else borrow.return_date
+        db.session.commit()
+        return serialize_borrow(borrow), 200
+
+    def patch(self, id):
+        borrow = Borrow.query.get_or_404(id)
+        data = request.get_json()
+        if 'status' in data:
+            borrow.status = data['status']
+        if 'return_date' in data:
+            borrow.return_date = datetime.fromisoformat(data['return_date'])
         db.session.commit()
         return serialize_borrow(borrow), 200
 
