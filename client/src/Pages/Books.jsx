@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import AddBook from "../Components/AddBook"; // Ensure this path is correct
+import BookList from "../Components/BookList";
 
 function Books() {
   const [books, setBooks] = useState([]);
@@ -39,15 +40,7 @@ function Books() {
       {!loading && !error && (
         <>
           <AddBook onAdd={handleAddBook} />
-
-          <ul style={styles.list}>
-            {books.map((b) => (
-              <li key={b.id} style={styles.listItem}>
-                <strong>{b.title}</strong> by {b.author} —{" "}
-                <em>{b.available_copies}</em> copies available
-              </li>
-            ))}
-          </ul>
+          <BookList books={books} setBooks={setBooks} />
         </>
       )}
     </div>

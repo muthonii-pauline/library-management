@@ -2,6 +2,8 @@ import { createBrowserRouter } from "react-router-dom";
 import Layout from "./Components/Layout";
 import Home from "./Pages/Home";
 import Books from "./Pages/Books";
+import Borrows from "./Pages/Borrows";
+import Users from "./Pages/Users";
 
 
 const router = createBrowserRouter([
@@ -16,6 +18,14 @@ const router = createBrowserRouter([
       {
         path: "/books",
         element: <Books/>
+      },
+      {
+        path: "/borrows",
+        element: <Borrows />
+      },
+      {
+        path: "/users",
+        element: <Users/>
       },
       {
         path: "*",

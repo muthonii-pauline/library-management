@@ -51,6 +51,20 @@ class UserList(Resource):
         db.session.commit()
         return serialize_user(user), 201
 
+    def put(self, id):
+        user = User.query.get_or_404(id)
+        data = request.get_json()
+        user.name = data.get('name', user.name)
+        user.email = data.get('email', user.email)
+        db.session.commit()
+        return serialize_user(user), 200
+
+    def delete(self, id):
+        user = User.query.get_or_404(id)
+        db.session.delete(user)
+        db.session.commit()
+        return '', 204
+
 class BookList(Resource):
     def get(self):
         return [serialize_book(b) for b in Book.query.all()], 200
@@ -61,6 +75,21 @@ class BookList(Resource):
         db.session.add(book)
         db.session.commit()
         return serialize_book(book), 201
+
+    def put(self, id):
+        book = Book.query.get_or_404(id)
+        data = request.get_json()
+        book.title = data.get('title', book.title)
+        book.author = data.get('author', book.author)
+        book.available_copies = data.get('available_copies', book.available_copies)
+        db.session.commit()
+        return serialize_book(book), 200
+
+    def delete(self, id):
+        book = Book.query.get_or_404(id)
+        db.session.delete(book)
+        db.session.commit()
+        return '', 204
 
 class BorrowList(Resource):
     def get(self):
@@ -83,6 +112,20 @@ class BorrowList(Resource):
             return serialize_borrow(borrow), 201
         return {"error": "Book not available"}, 400
 
+    def put(self, id):
+        borrow = Borrow.query.get_or_404(id)
+        data = request.get_json()
+        borrow.status = data.get('status', borrow.status)
+        borrow.return_date = datetime.fromisoformat(data['return_date']) if data.get('return_date') else borrow.return_date
+        db.session.commit()
+        return serialize_borrow(borrow), 200
+
+    def delete(self, id):
+        borrow = Borrow.query.get_or_404(id)
+        db.session.delete(borrow)
+        db.session.commit()
+        return '', 204
+
 class BorrowReturn(Resource):
     def patch(self, id):
         borrow = Borrow.query.get_or_404(id)
@@ -97,9 +140,9 @@ class BorrowReturn(Resource):
 
 # === Register Routes ===
 
-api.add_resource(UserList, '/api/users')
-api.add_resource(BookList, '/api/books')
-api.add_resource(BorrowList, '/api/borrows')
+api.add_resource(UserList, '/api/users', '/api/users/<int:id>')
+api.add_resource(BookList, '/api/books', '/api/books/<int:id>')
+api.add_resource(BorrowList, '/api/borrows', '/api/borrows/<int:id>')
 api.add_resource(BorrowReturn, '/api/borrows/<int:id>/return')
 
 # === React Catch-all + Health Check ===

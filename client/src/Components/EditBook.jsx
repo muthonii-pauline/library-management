@@ -1,4 +1,3 @@
-// Components/EditBook.jsx
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
@@ -18,7 +17,7 @@ function EditBook({ book, onUpdate, onCancel }) {
     }),
     onSubmit: async (values) => {
       try {
-        const res = await axios.patch(`/api/books/${book.id}`, values);
+        const res = await axios.put(`/api/books/${book.id}`, values);
         onUpdate(res.data);
       } catch (err) {
         console.error("Update failed", err);
