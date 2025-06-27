@@ -1,30 +1,45 @@
-import { useState } from "react";
-import BorrowForm from "../components/BorrowForm";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import BorrowBook from "../Components/BorrowBook";
 
-export default function Borrows() {
-  const [message, setMessage] = useState("");
+const API = import.meta.env.VITE_API_BASE_URL;
 
-  function handleBorrow(data) {
-    fetch("/api/borrows", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    })
+function Borrows() {
+  const [borrows, setBorrows] = useState([]);
+
+  useEffect(() => {
+    axios.get(`${API}/borrows`).then((res) => setBorrows(res.data));
+  }, []);
+
+  function markReturned(id) {
+    axios
+      .patch(`${API}/borrows/${id}`, {
+        status: "returned",
+        return_date: new Date().toISOString(),
+      })
       .then((res) => {
-        if (res.ok) return res.json();
-        throw new Error("Failed to borrow");
-      })
-      .then((borrow) => {
-        setMessage("Successfully borrowed!");
-      })
-      .catch((err) => setMessage(err.message));
+        setBorrows(borrows.map((b) => (b.id === id ? res.data : b)));
+      });
   }
 
   return (
     <div>
-      <h2>Borrow Book</h2>
-      <BorrowForm onSubmit={handleBorrow} />
-      {message && <p>{message}</p>}
+      <h2>Borrows</h2>
+      <BorrowBook onBorrowed={(b) => setBorrows([...borrows, b])} />
+      <ul>
+        {borrows.map((b) => (
+          <li key={b.id}>
+            User {b.user_id} borrowed Book {b.book_id} on{" "}
+            {new Date(b.borrow_date).toLocaleDateString()}— Status:{" "}
+            <strong>{b.status}</strong>
+            {b.status === "borrowed" && (
+              <button onClick={() => markReturned(b.id)}>Mark Returned</button>
+            )}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
+
+export default Borrows;
