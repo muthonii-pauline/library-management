@@ -4,6 +4,7 @@ import Home from "./Pages/Home";
 import Books from "./Pages/Books";
 import Borrows from "./Pages/Borrows";
 import Users from "./Pages/Users";
+import Error from "./Pages/Error";
 
 
 const router = createBrowserRouter([

@@ -27,3 +27,13 @@ body {
   width: 100%;
   border-collapse: collapse;
 }
+
+.borrows-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20rem;
+  align-items: flex-start;
+  padding: 1rem;
+}
+
+

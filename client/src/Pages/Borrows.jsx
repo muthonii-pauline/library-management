@@ -1,4 +1,3 @@
-// Pages/Borrows.jsx
 import { useEffect, useState } from "react";
 import axios from "axios";
 import BorrowBook from "../Components/BorrowBook";
@@ -6,16 +5,43 @@ import BorrowList from "../Components/BorrowList";
 
 function Borrows() {
   const [borrows, setBorrows] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    axios.get("/api/borrows").then((res) => setBorrows(res.data));
+    axios
+      .get("/api/borrows")
+      .then((res) => setBorrows(res.data))
+      .catch((err) => {
+        console.error("Error fetching borrows:", err);
+        setError(err);
+      })
+      .finally(() => setLoading(false));
   }, []);
 
+  const handleAddBorrow = (newBorrow) => {
+    setBorrows([...borrows, newBorrow]);
+  };
+
   return (
-    <div>
-      <h1>Borrow Records</h1>
-      <BorrowBook onAdd={(record) => setBorrows([...borrows, record])} />
-      <BorrowList borrows={borrows} setBorrows={setBorrows} />
+    <div
+      className="borrows-container"
+      style={{ display: "flex", gap: "2rem", padding: "1rem" }}
+    >
+      <div className="borrows-form" style={{flex:1}}>
+        <h2 className="text-center mb-3">Lend a Book</h2>
+        {error && <p className="text-danger">⚠️ Error: {error.message}</p>}
+        <BorrowBook onAdd={handleAddBorrow} />
+      </div>
+
+      <div className="borrows-list">
+        <h3 className="text-center">Borrow Records</h3>
+        {loading ? (
+          <p>Loading borrow records...</p>
+        ) : (
+          <BorrowList borrows={borrows} setBorrows={setBorrows} />
+        )}
+      </div>
     </div>
   );
 }

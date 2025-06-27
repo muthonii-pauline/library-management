@@ -1,102 +1,35 @@
-// Components/BorrowBook.jsx
 import { useEffect, useState } from "react";
-import { useFormik } from "formik";
-import * as Yup from "yup";
 import axios from "axios";
-import ConfirmDialog from "./ConfirmDialog";
+import BorrowBook from "../Components/BorrowBook";
+import BorrowList from "../Components/BorrowList";
 
-function BorrowBook({ onAdd }) {
-  const [users, setUsers] = useState([]);
-  const [books, setBooks] = useState([]);
-  const [confirmOpen, setConfirmOpen] = useState(false);
-  const [pendingValues, setPendingValues] = useState(null);
+function Borrows() {
+  const [borrows, setBorrows] = useState([]);
 
   useEffect(() => {
-    axios.get("/api/users").then((res) => setUsers(res.data));
-    axios.get("/api/books").then((res) => setBooks(res.data));
+    axios.get("/api/borrows").then((res) => setBorrows(res.data));
   }, []);
 
-  const formik = useFormik({
-    initialValues: {
-      user_id: "",
-      book_id: "",
-      borrow_date: "",
-    },
-    validationSchema: Yup.object({
-      user_id: Yup.number().required("User is required"),
-      book_id: Yup.number().required("Book is required"),
-    }),
-    onSubmit: (values, { resetForm }) => {
-      setPendingValues({ values, resetForm });
-      setConfirmOpen(true);
-    },
-  });
-
-  const handleConfirm = async () => {
-    setConfirmOpen(false);
-    if (!pendingValues) return;
-    try {
-      const res = await axios.post("/api/borrows", pendingValues.values);
-      onAdd(res.data);
-      pendingValues.resetForm();
-    } catch (err) {
-      console.error("Failed to borrow book:", err);
-    }
-    setPendingValues(null);
-  };
-
-  const handleCancel = () => {
-    setConfirmOpen(false);
-    setPendingValues(null);
+  const handleAddBorrow = (record) => {
+    setBorrows((prev) => [...prev, record]);
   };
 
   return (
-    <>
-      <form onSubmit={formik.handleSubmit}>
-        <h2>Borrow Book</h2>
-        <select
-          name="user_id"
-          value={formik.values.user_id}
-          onChange={formik.handleChange}
-        >
-          <option value="">Select User</option>
-          {users.map((u) => (
-            <option key={u.id} value={u.id}>
-              {u.name}
-            </option>
-          ))}
-        </select>
+    <div className="borrows-container d-flex flex-wrap gap-4 justify-content-between">
+      <div
+        className="borrows-form flex-grow-1"
+        style={{ minWidth: "300px", maxWidth: "400px" }}
+      >
+        <h2 className="text-center">Borrow a Book</h2>
+        <BorrowBook onAdd={handleAddBorrow} />
+      </div>
 
-        <select
-          name="book_id"
-          value={formik.values.book_id}
-          onChange={formik.handleChange}
-        >
-          <option value="">Select Book</option>
-          {books.map((b) => (
-            <option key={b.id} value={b.id}>
-              {b.title}
-            </option>
-          ))}
-        </select>
-
-        <input
-          type="date"
-          name="borrow_date"
-          value={formik.values.borrow_date}
-          onChange={formik.handleChange}
-        />
-
-        <button type="submit">Borrow</button>
-      </form>
-      <ConfirmDialog
-        open={confirmOpen}
-        message="Are you sure you want to borrow this book?"
-        onConfirm={handleConfirm}
-        onCancel={handleCancel}
-      />
-    </>
+      <div className="borrows-list flex-grow-2" style={{ flex: "1 1 60%" }}>
+        <h3 className="text-center">Borrow Records</h3>
+        <BorrowList borrows={borrows} setBorrows={setBorrows} />
+      </div>
+    </div>
   );
 }
 
-export default BorrowBook;
+export default Borrows;
