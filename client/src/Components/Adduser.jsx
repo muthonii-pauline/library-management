@@ -1,36 +1,43 @@
-import { useState } from "react";
+// Components/AddUser.jsx
+import { useFormik } from "formik";
+import * as Yup from "yup";
 import axios from "axios";
 
-const API = import.meta.env.VITE_API_BASE_URL;
-
-function AddUser({ onUserAdded }) {
-  const [formData, setFormData] = useState({ name: "", email: "" });
-
-  function handleSubmit(e) {
-    e.preventDefault();
-    axios
-      .post(`${API}/users`, formData)
-      .then((res) => {
-        onUserAdded(res.data);
-        setFormData({ name: "", email: "" });
-      })
-      .catch((err) => console.error(err));
-  }
+function AddUser({ onAdd }) {
+  const formik = useFormik({
+    initialValues: {
+      name: "",
+      email: "",
+    },
+    validationSchema: Yup.object({
+      name: Yup.string().required("Name is required"),
+      email: Yup.string().email("Invalid email").required("Email is required"),
+    }),
+    onSubmit: async (values, { resetForm }) => {
+      try {
+        const res = await axios.post("/api/users", values);
+        onAdd(res.data);
+        resetForm();
+      } catch (err) {
+        console.error("Failed to create user:", err);
+      }
+    },
+  });
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={formik.handleSubmit}>
+      <h2>Add User</h2>
       <input
+        name="name"
         placeholder="Name"
-        value={formData.name}
-        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-        required
+        value={formik.values.name}
+        onChange={formik.handleChange}
       />
       <input
+        name="email"
         placeholder="Email"
-        type="email"
-        value={formData.email}
-        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-        required
+        value={formik.values.email}
+        onChange={formik.handleChange}
       />
       <button type="submit">Add User</button>
     </form>
