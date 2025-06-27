@@ -1,39 +1,40 @@
+// Pages/Borrows.jsx
 import { useEffect, useState } from "react";
 import axios from "axios";
 import BorrowBook from "../Components/BorrowBook";
-
-const API = import.meta.env.VITE_API_BASE_URL;
 
 function Borrows() {
   const [borrows, setBorrows] = useState([]);
 
   useEffect(() => {
-    axios.get(`${API}/borrows`).then((res) => setBorrows(res.data));
+    axios.get("/api/borrows").then((res) => setBorrows(res.data));
   }, []);
 
-  function markReturned(id) {
-    axios
-      .patch(`${API}/borrows/${id}`, {
+  const markReturned = async (id) => {
+    try {
+      const res = await axios.patch(`/api/borrows/${id}`, {
         status: "returned",
         return_date: new Date().toISOString(),
-      })
-      .then((res) => {
-        setBorrows(borrows.map((b) => (b.id === id ? res.data : b)));
       });
-  }
+      setBorrows(borrows.map((b) => (b.id === id ? res.data : b)));
+    } catch (err) {
+      console.error("Failed to mark as returned:", err);
+    }
+  };
 
   return (
     <div>
-      <h2>Borrows</h2>
-      <BorrowBook onBorrowed={(b) => setBorrows([...borrows, b])} />
+      <h1>Borrow Records</h1>
+      <BorrowBook onAdd={(record) => setBorrows([...borrows, record])} />
       <ul>
         {borrows.map((b) => (
           <li key={b.id}>
-            User {b.user_id} borrowed Book {b.book_id} on{" "}
-            {new Date(b.borrow_date).toLocaleDateString()}— Status:{" "}
-            <strong>{b.status}</strong>
-            {b.status === "borrowed" && (
+            User {b.user?.name} borrowed {b.book?.title} on{" "}
+            {b.borrow_date?.slice(0, 10)}
+            {b.status === "borrowed" ? (
               <button onClick={() => markReturned(b.id)}>Mark Returned</button>
+            ) : (
+              <> - Returned on {b.return_date?.slice(0, 10)}</>
             )}
           </li>
         ))}
