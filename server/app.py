@@ -23,6 +23,7 @@ def serialize_book(book):
         "id": book.id,
         "title": book.title,
         "author": book.author,
+        "genre":book.genre,
         "available_copies": book.available_copies
     }
 

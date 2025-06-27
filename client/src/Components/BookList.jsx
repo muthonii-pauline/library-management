@@ -1,22 +1,21 @@
 import { useState } from "react";
 import axios from "axios";
-import ConfirmDialog from "./ConfirmDialog";
 
 function BookList({ books, setBooks }) {
   const [search, setSearch] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [editedBook, setEditedBook] = useState({});
-  const [confirmOpen, setConfirmOpen] = useState(false);
-  const [pendingDeleteId, setPendingDeleteId] = useState(null);
 
-  // Pagination
   const booksPerPage = 10;
   const [currentPage, setCurrentPage] = useState(1);
-  const pageCount = Math.ceil(
-    books.filter((book) =>
-      book.title.toLowerCase().includes(search.toLowerCase())
-    ).length / booksPerPage
+  const filteredBooks = books.filter((book) =>
+    book.title.toLowerCase().includes(search.toLowerCase())
   );
+  const paginatedBooks = filteredBooks.slice(
+    (currentPage - 1) * booksPerPage,
+    currentPage * booksPerPage
+  );
+  const pageCount = Math.ceil(filteredBooks.length / booksPerPage);
 
   const handleEdit = (book) => {
     setEditingId(book.id);
@@ -38,31 +37,6 @@ function BookList({ books, setBooks }) {
       alert("Update failed.");
     }
   };
-
-  const handleDelete = async (id) => {
-    await axios.delete(`/api/books/${id}`);
-    setBooks(books.filter((b) => b.id !== id));
-  };
-
-  const handleConfirm = () => {
-    if (pendingDeleteId !== null) handleDelete(pendingDeleteId);
-    setConfirmOpen(false);
-    setPendingDeleteId(null);
-  };
-
-  const handleCancel = () => {
-    setConfirmOpen(false);
-    setPendingDeleteId(null);
-  };
-
-  // Filter + Paginate
-  const filteredBooks = books.filter((book) =>
-    book.title.toLowerCase().includes(search.toLowerCase())
-  );
-  const paginatedBooks = filteredBooks.slice(
-    (currentPage - 1) * booksPerPage,
-    currentPage * booksPerPage
-  );
 
   return (
     <div>
@@ -156,18 +130,9 @@ function BookList({ books, setBooks }) {
                   <td>
                     <button
                       onClick={() => handleEdit(book)}
-                      className="btn btn-sm btn-warning me-2"
+                      className="btn btn-sm btn-warning"
                     >
                       Edit
-                    </button>
-                    <button
-                      onClick={() => {
-                        setPendingDeleteId(book.id);
-                        setConfirmOpen(true);
-                      }}
-                      className="btn btn-sm btn-danger"
-                    >
-                      Delete
                     </button>
                   </td>
                 </tr>
@@ -197,14 +162,6 @@ function BookList({ books, setBooks }) {
           </ul>
         </nav>
       )}
-
-      {/* Confirm Delete */}
-      <ConfirmDialog
-        open={confirmOpen}
-        message="Are you sure you want to delete this book?"
-        onConfirm={handleConfirm}
-        onCancel={handleCancel}
-      />
     </div>
   );
 }

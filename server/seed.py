@@ -37,11 +37,13 @@ if __name__ == '__main__':
 
         # Create books
         print("📚 Seeding books...")
+        genres = ["Mystery", "Romance", "Sci-Fi", "Fantasy", "History", "Drama"]
         books = []
         for _ in range(50):
             book = Book(
-                title=fake.sentence(nb_words=3),
+                title=fake.sentence(nb_words=3).rstrip('.'),
                 author=fake.name(),
+                genre=rc(genres),
                 available_copies=randint(1, 5)
             )
             books.append(book)
