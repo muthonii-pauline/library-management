@@ -29,21 +29,21 @@ function Books() {
   };
 
   return (
-    <div>
-      <h1>📚 Books</h1>
+    <>
+      <div className="books-container">
+        <h1>📚 Books</h1>
 
-      {loading && <p>Loading books...</p>}
-      {error && (
-        <p>⚠️ Error loading books: {error.message}</p>
-      )}
+        {loading && <p>Loading books...</p>}
+        {error && <p>⚠️ Error loading books: {error.message}</p>}
 
-      {!loading && !error && (
-        <>
-          <AddBook onAdd={handleAddBook} />
-          <BookList books={books} setBooks={setBooks} />
-        </>
-      )}
-    </div>
+        {!loading && !error && (
+          <>
+            <AddBook onAdd={handleAddBook} />
+            <BookList books={books} setBooks={setBooks} />
+          </>
+        )}
+      </div>
+    </>
   );
 }
 

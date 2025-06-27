@@ -26,7 +26,7 @@ if __name__ == '__main__':
         # Create users
         print("👤 Seeding users...")
         users = []
-        for _ in range(10):
+        for _ in range(50):
             user = User(
                 name=fake.name(),
                 email=fake.unique.email()
@@ -38,7 +38,7 @@ if __name__ == '__main__':
         # Create books
         print("📚 Seeding books...")
         books = []
-        for _ in range(10):
+        for _ in range(50):
             book = Book(
                 title=fake.sentence(nb_words=3),
                 author=fake.name(),
@@ -51,7 +51,7 @@ if __name__ == '__main__':
         # Create borrow records
         print("🔁 Seeding borrows...")
         borrows = []
-        for _ in range(15):
+        for _ in range(25):
             user = rc(users)
             book = rc(books)
             borrow_date = fake.date_between(start_date='-60d', end_date='today')
