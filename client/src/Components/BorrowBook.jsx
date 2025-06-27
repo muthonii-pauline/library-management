@@ -1,32 +1,46 @@
-import { useState, useEffect } from "react";
+// Components/BorrowBook.jsx
+import { useEffect, useState } from "react";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 import axios from "axios";
 
-const API = import.meta.env.VITE_API_BASE_URL;
-
-function BorrowBook({ onBorrowed }) {
+function BorrowBook({ onAdd }) {
   const [users, setUsers] = useState([]);
   const [books, setBooks] = useState([]);
-  const [data, setData] = useState({ user_id: "", book_id: "" });
 
   useEffect(() => {
-    axios.get(`${API}/users`).then((res) => setUsers(res.data));
-    axios.get(`${API}/books`).then((res) => setBooks(res.data));
+    axios.get("/api/users").then((res) => setUsers(res.data));
+    axios.get("/api/books").then((res) => setBooks(res.data));
   }, []);
 
-  function handleSubmit(e) {
-    e.preventDefault();
-    axios.post(`${API}/borrows`, data).then((res) => {
-      onBorrowed(res.data);
-      setData({ user_id: "", book_id: "" });
-    });
-  }
+  const formik = useFormik({
+    initialValues: {
+      user_id: "",
+      book_id: "",
+      borrow_date: "",
+    },
+    validationSchema: Yup.object({
+      user_id: Yup.number().required("User is required"),
+      book_id: Yup.number().required("Book is required"),
+    }),
+    onSubmit: async (values, { resetForm }) => {
+      try {
+        const res = await axios.post("/api/borrows", values);
+        onAdd(res.data);
+        resetForm();
+      } catch (err) {
+        console.error("Failed to borrow book:", err);
+      }
+    },
+  });
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={formik.handleSubmit}>
+      <h2>Borrow Book</h2>
       <select
-        value={data.user_id}
-        onChange={(e) => setData({ ...data, user_id: e.target.value })}
-        required
+        name="user_id"
+        value={formik.values.user_id}
+        onChange={formik.handleChange}
       >
         <option value="">Select User</option>
         {users.map((u) => (
@@ -37,9 +51,9 @@ function BorrowBook({ onBorrowed }) {
       </select>
 
       <select
-        value={data.book_id}
-        onChange={(e) => setData({ ...data, book_id: e.target.value })}
-        required
+        name="book_id"
+        value={formik.values.book_id}
+        onChange={formik.handleChange}
       >
         <option value="">Select Book</option>
         {books.map((b) => (
@@ -49,7 +63,14 @@ function BorrowBook({ onBorrowed }) {
         ))}
       </select>
 
-      <button type="submit">Borrow Book</button>
+      <input
+        type="date"
+        name="borrow_date"
+        value={formik.values.borrow_date}
+        onChange={formik.handleChange}
+      />
+
+      <button type="submit">Borrow</button>
     </form>
   );
 }
