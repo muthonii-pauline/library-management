@@ -1,28 +1,46 @@
-// App.jsx
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  NavLink,
-} from "react-router-dom";
-import Users from "./Pages/Users";
-import Books from "./Pages/Books";
-import Borrows from "./Pages/Borrows";
+import { createBrowserRouter } from "react-router-dom";
+import Layout from "./Components/Layout";
 
-function App() {
-  return (
-    <Router>
-      <nav>
-        <NavLink to="/">Users</NavLink> | <NavLink to="/books">Books</NavLink> |{" "}
-        <NavLink to="/borrows">Borrows</NavLink>
-      </nav>
-      <Routes>
-        <Route path="/" element={<Users />} />
-        <Route path="/books" element={<Books />} />
-        <Route path="/borrows" element={<Borrows />} />
-      </Routes>
-    </Router>
-  );
-}
 
-export default App;
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Layout />,
+    children: [
+      {
+        index: true,
+        element: <Home />,
+      },
+      {
+        path: "/pets",
+        element: <Pets />,
+      },
+      {
+        path: "/owners",
+        element: <Owners />,
+      },
+      {
+        path: "/staff",
+        element: <Staff />,
+      },
+      {
+        path: "/treatments",
+        element: <Treatments />,
+      },
+      {
+        path: "/appointments",
+        element: <Appointments />,
+      },
+      {
+        path: "/billings",
+        element: <Billing />,
+      },
+      {
+        path: "*",
+        element: <Error />,
+      },
+    ],
+  },
+]);
+
+export default router;
