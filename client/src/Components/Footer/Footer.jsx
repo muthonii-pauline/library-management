@@ -9,7 +9,7 @@ const Footer = () => {
         <div className="f-left">
           <NavLink to="/">
             <img
-              src="/libarylogo.jpg"
+              src="/library logo.jpg"
               alt="LibraryManagement"
               width={100}
               className="footer-logo"
@@ -24,8 +24,8 @@ const Footer = () => {
                       Home
             </NavLink>
             <NavLink to="/books">Books</NavLink>
-            <NavLink to="/borrows">Pets</NavLink>
-            <NavLink to="/Users">Staff</NavLink>
+            <NavLink to="/borrows">Borrows</NavLink>
+            <NavLink to="/Users">Users</NavLink>
           </nav>
         </div>
 

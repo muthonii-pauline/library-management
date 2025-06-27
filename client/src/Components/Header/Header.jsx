@@ -9,7 +9,7 @@ const Header = () => {
       <div className="h-container">
         <NavLink to="/">
           <img
-            src="/librarylogo.jpg"
+            src="/library logo.jpg"
             alt="Library Management"
             width={100}
             className="logo"
@@ -22,8 +22,8 @@ const Header = () => {
           Home
         </NavLink>
         <NavLink to="/books">Books</NavLink>
-        <NavLink to="/borrows">Pets</NavLink>
-        <NavLink to="/Users">Staff</NavLink>
+        <NavLink to="/borrows">Borrows</NavLink>
+        <NavLink to="/Users">Users</NavLink>
       </div>
     </section>
   );
