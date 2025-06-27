@@ -1,4 +1,3 @@
-// Components/AddBook.jsx
 import { useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -19,7 +18,9 @@ function AddBook({ onAdd }) {
     validationSchema: Yup.object({
       title: Yup.string().required("Title is required"),
       author: Yup.string().required("Author is required"),
-      available_copies: Yup.number().min(1, "At least one copy").required(),
+      available_copies: Yup.number()
+        .min(1, "At least one copy")
+        .required("Number of copies is required"),
     }),
     onSubmit: (values) => {
       setPendingValues(values);
@@ -46,35 +47,59 @@ function AddBook({ onAdd }) {
 
   return (
     <>
-      <form onSubmit={formik.handleSubmit}>
-        <h2>Add Book</h2>
+      <form className="mb-4" onSubmit={formik.handleSubmit}>
+
         <input
           name="title"
           placeholder="Title"
+          className="form-control mb-2"
           value={formik.values.title}
           onChange={formik.handleChange}
         />
+        {formik.errors.title && (
+          <small className="text-danger">{formik.errors.title}</small>
+        )}
+
         <input
           name="author"
           placeholder="Author"
+          className="form-control mb-2"
           value={formik.values.author}
           onChange={formik.handleChange}
         />
+        {formik.errors.author && (
+          <small className="text-danger">{formik.errors.author}</small>
+        )}
+
         <input
           name="genre"
           placeholder="Genre"
+          className="form-control mb-2"
           value={formik.values.genre}
           onChange={formik.handleChange}
         />
+
         <input
           name="available_copies"
           type="number"
           min="1"
+          className="form-control mb-2"
           value={formik.values.available_copies}
           onChange={formik.handleChange}
         />
-        <button type="submit">Add Book</button>
+        {formik.errors.available_copies && (
+          <small className="text-danger">
+            {formik.errors.available_copies}
+          </small>
+        )}
+
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <button type="submit" className="btn btn-primary">
+            Add Book
+          </button>
+        </div>
       </form>
+
       <ConfirmDialog
         open={confirmOpen}
         message="Are you sure you want to add this book?"

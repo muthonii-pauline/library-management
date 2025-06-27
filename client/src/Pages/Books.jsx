@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import AddBook from "../Components/AddBook"; // Ensure this path is correct
+import AddBook from "../Components/AddBook";
 import BookList from "../Components/BookList";
 
 function Books() {
@@ -31,17 +31,17 @@ function Books() {
   return (
     <>
       <div className="books-container">
-        <h1>📚 Books</h1>
+        <div className="books-form">
+          <h2 className="text-center">Add Book</h2>
+          {loading && <p>Loading books...</p>}
+          {error && <p className="text-danger">⚠️ Error: {error.message}</p>}
+          {!loading && !error && <AddBook onAdd={handleAddBook} />}
+        </div>
 
-        {loading && <p>Loading books...</p>}
-        {error && <p>⚠️ Error loading books: {error.message}</p>}
-
-        {!loading && !error && (
-          <>
-            <AddBook onAdd={handleAddBook} />
-            <BookList books={books} setBooks={setBooks} />
-          </>
-        )}
+        <div className="books-list">
+          <h3 className="text-center">Library Collection</h3>
+          {!loading && !error && <BookList books={books} setBooks={setBooks} />}
+        </div>
       </div>
     </>
   );
