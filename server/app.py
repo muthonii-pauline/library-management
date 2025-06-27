@@ -1,23 +1,118 @@
 #!/usr/bin/env python3
 
-# Standard library imports
-
-# Remote library imports
-from flask import request
+from flask import request, render_template
 from flask_restful import Resource
+from datetime import datetime
 
-# Local imports
-from config import app, db, api
-# Add your model imports
+from config import app, db, api, migrate
 
+# === Import Models ===
+from models import User, Book, Borrow
 
-# Views go here!
+# === Serializers ===
+
+def serialize_user(user):
+    return {
+        "id": user.id,
+        "name": user.name,
+        "email": user.email
+    }
+
+def serialize_book(book):
+    return {
+        "id": book.id,
+        "title": book.title,
+        "author": book.author,
+        "available_copies": book.available_copies
+    }
+
+def serialize_borrow(borrow):
+    return {
+        "id": borrow.id,
+        "user_id": borrow.user_id,
+        "book_id": borrow.book_id,
+        "borrow_date": borrow.borrow_date.isoformat() if borrow.borrow_date else None,
+        "return_date": borrow.return_date.isoformat() if borrow.return_date else None,
+        "status": borrow.status,
+        "book": serialize_book(borrow.book),
+        "user": serialize_user(borrow.user)
+    }
+
+# === Resource Classes ===
+
+class UserList(Resource):
+    def get(self):
+        return [serialize_user(u) for u in User.query.all()], 200
+
+    def post(self):
+        data = request.get_json()
+        user = User(**data)
+        db.session.add(user)
+        db.session.commit()
+        return serialize_user(user), 201
+
+class BookList(Resource):
+    def get(self):
+        return [serialize_book(b) for b in Book.query.all()], 200
+
+    def post(self):
+        data = request.get_json()
+        book = Book(**data)
+        db.session.add(book)
+        db.session.commit()
+        return serialize_book(book), 201
+
+class BorrowList(Resource):
+    def get(self):
+        return [serialize_borrow(b) for b in Borrow.query.all()], 200
+
+    def post(self):
+        data = request.get_json()
+        book = Book.query.get(data["book_id"])
+
+        if book and book.available_copies > 0:
+            borrow = Borrow(
+                user_id=data["user_id"],
+                book_id=data["book_id"],
+                borrow_date=datetime.utcnow(),
+                status="borrowed"
+            )
+            book.available_copies -= 1
+            db.session.add(borrow)
+            db.session.commit()
+            return serialize_borrow(borrow), 201
+        return {"error": "Book not available"}, 400
+
+class BorrowReturn(Resource):
+    def patch(self, id):
+        borrow = Borrow.query.get_or_404(id)
+        if borrow.status == "returned":
+            return {"error": "Book already returned"}, 400
+
+        borrow.status = "returned"
+        borrow.return_date = datetime.utcnow()
+        borrow.book.available_copies += 1
+        db.session.commit()
+        return serialize_borrow(borrow), 200
+
+# === Register Routes ===
+
+api.add_resource(UserList, '/api/users')
+api.add_resource(BookList, '/api/books')
+api.add_resource(BorrowList, '/api/borrows')
+api.add_resource(BorrowReturn, '/api/borrows/<int:id>/return')
+
+# === React Catch-all + Health Check ===
 
 @app.route('/')
 def index():
-    return '<h1>Project Server</h1>'
+    return render_template("index.html")
 
+@app.errorhandler(404)
+def not_found(e):
+    return render_template("index.html")
+
+# === Local Dev ===
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
-
