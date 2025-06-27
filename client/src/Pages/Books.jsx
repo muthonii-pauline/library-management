@@ -1,51 +1,48 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import AddBook from "../Components/AddBook";
+import AddBook from "../Components/AddBook"; // Ensure this path is correct
+import BookList from "../Components/BookList";
 
 function Books() {
   const [books, setBooks] = useState([]);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     axios
       .get("/api/books")
-      .then((res) => setBooks(res.data))
+      .then((res) => {
+        setBooks(res.data);
+        setError(null);
+      })
       .catch((err) => {
         console.error("Error fetching books:", err);
-        setBooks([]); // fallback
+        setError(err);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }, []);
 
+  const handleAddBook = (newBook) => {
+    setBooks([...books, newBook]);
+  };
+
   return (
     <div>
-      <h1>Books</h1>
-      <AddBook onAdd={(book) => setBooks([...books, book])} />
+      <h1>📚 Books</h1>
 
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Title</th>
-            <th>Author</th>
-            <th>Available Copies</th>
-          </tr>
-        </thead>
-        <tbody>
-          {Array.isArray(books) && books.length > 0 ? (
-            books.map((b) => (
-              <tr key={b.id}>
-                <td>{b.id}</td>
-                <td>{b.title}</td>
-                <td>{b.author}</td>
-                <td>{b.available_copies}</td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="4">No books available.</td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+      {loading && <p>Loading books...</p>}
+      {error && (
+        <p>⚠️ Error loading books: {error.message}</p>
+      )}
+
+      {!loading && !error && (
+        <>
+          <AddBook onAdd={handleAddBook} />
+          <BookList books={books} setBooks={setBooks} />
+        </>
+      )}
     </div>
   );
 }

@@ -17,24 +17,39 @@ function UserList({ users, setUsers }) {
   };
 
   return (
-    <ul>
-      {users.map((user) =>
-        editingUser?.id === user.id ? (
-          <EditUser
-            key={user.id}
-            user={user}
-            onUpdate={handleUpdate}
-            onCancel={() => setEditingUser(null)}
-          />
-        ) : (
-          <li key={user.id}>
-            {user.name} - {user.email}
-            <button onClick={() => setEditingUser(user)}>Edit</button>
-            <button onClick={() => handleDelete(user.id)}>Delete</button>
-          </li>
-        )
-      )}
-    </ul>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {users.map((user) =>
+          editingUser?.id === user.id ? (
+            <tr key={user.id}>
+              <td colSpan="3">
+                <EditUser
+                  user={user}
+                  onUpdate={handleUpdate}
+                  onCancel={() => setEditingUser(null)}
+                />
+              </td>
+            </tr>
+          ) : (
+            <tr key={user.id}>
+              <td>{user.name}</td>
+              <td>{user.email}</td>
+              <td>
+                <button onClick={() => setEditingUser(user)}>Edit</button>
+                <button onClick={() => handleDelete(user.id)}>Delete</button>
+              </td>
+            </tr>
+          )
+        )}
+      </tbody>
+    </table>
   );
 }
 

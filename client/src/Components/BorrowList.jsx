@@ -19,25 +19,43 @@ function BorrowList({ borrows, setBorrows }) {
   };
 
   return (
-    <ul>
-      {borrows.map((borrow) =>
-        editingBorrow?.id === borrow.id ? (
-          // For simplicity, editing borrow is not implemented here
-          <li key={borrow.id}>Editing not implemented</li>
-        ) : (
-          <li key={borrow.id}>
-            User {borrow.user?.name} borrowed {borrow.book?.title} on{" "}
-            {borrow.borrow_date?.slice(0, 10)}
-            {borrow.status === "borrowed" ? (
-              <button onClick={() => markReturned(borrow.id)}>Mark Returned</button>
-            ) : (
-              <> - Returned on {borrow.return_date?.slice(0, 10)}</>
-            )}
-            <button onClick={() => handleDelete(borrow.id)}>Delete</button>
-          </li>
-        )
-      )}
-    </ul>
+    <table>
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Book</th>
+          <th>Borrow Date</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {borrows.map((borrow) =>
+          editingBorrow?.id === borrow.id ? (
+            <tr key={borrow.id}>
+              <td colSpan="5">Editing not implemented</td>
+            </tr>
+          ) : (
+            <tr key={borrow.id}>
+              <td>{borrow.user?.name}</td>
+              <td>{borrow.book?.title}</td>
+              <td>{borrow.borrow_date?.slice(0, 10)}</td>
+              <td>
+                {borrow.status === "borrowed"
+                  ? "Borrowed"
+                  : `Returned on ${borrow.return_date?.slice(0, 10)}`}
+              </td>
+              <td>
+                {borrow.status === "borrowed" && (
+                  <button onClick={() => markReturned(borrow.id)}>Mark Returned</button>
+                )}
+                <button onClick={() => handleDelete(borrow.id)}>Delete</button>
+              </td>
+            </tr>
+          )
+        )}
+      </tbody>
+    </table>
   );
 }
 

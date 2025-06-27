@@ -16,25 +16,41 @@ function BookList({ books, setBooks }) {
   };
 
   return (
-    <ul>
-      {books.map((book) =>
-        editingBook?.id === book.id ? (
-          <EditBook
-            key={book.id}
-            book={book}
-            onUpdate={handleUpdate}
-            onCancel={() => setEditingBook(null)}
-          />
-        ) : (
-          <li key={book.id}>
-            <strong>{book.title}</strong> by {book.author} —{" "}
-            <em>{book.available_copies}</em> copies available
-            <button onClick={() => setEditingBook(book)}>Edit</button>
-            <button onClick={() => handleDelete(book.id)}>Delete</button>
-          </li>
-        )
-      )}
-    </ul>
+    <table>
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Author</th>
+          <th>Available Copies</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {books.map((book) =>
+          editingBook?.id === book.id ? (
+            <tr key={book.id}>
+              <td colSpan="4">
+                <EditBook
+                  book={book}
+                  onUpdate={handleUpdate}
+                  onCancel={() => setEditingBook(null)}
+                />
+              </td>
+            </tr>
+          ) : (
+            <tr key={book.id}>
+              <td><strong>{book.title}</strong></td>
+              <td>{book.author}</td>
+              <td><em>{book.available_copies}</em></td>
+              <td>
+                <button onClick={() => setEditingBook(book)}>Edit</button>
+                <button onClick={() => handleDelete(book.id)}>Delete</button>
+              </td>
+            </tr>
+          )
+        )}
+      </tbody>
+    </table>
   );
 }
 
