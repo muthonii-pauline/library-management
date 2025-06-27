@@ -24,12 +24,9 @@ function Borrows() {
   };
 
   return (
-    <div
-      className="borrows-container"
-      style={{ display: "flex", gap: "2rem", padding: "1rem" }}
-    >
-      <div className="borrows-form" style={{flex:1}}>
-        <h2 className="text-center mb-3">Lend a Book</h2>
+    <div className="borrows-container">
+      <div className="borrows-form mb-4">
+        <h2 className="text-center">📘 Borrow a Book</h2>
         {error && <p className="text-danger">⚠️ Error: {error.message}</p>}
         <BorrowBook onAdd={handleAddBorrow} />
       </div>
