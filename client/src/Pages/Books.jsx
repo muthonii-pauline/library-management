@@ -29,21 +29,22 @@ function Books() {
   };
 
   return (
-    <>
-      <div className="books-container">
-        <div className="books-form">
-          <h2 className="text-center">Add Book</h2>
-          {loading && <p>Loading books...</p>}
-          {error && <p className="text-danger">⚠️ Error: {error.message}</p>}
-          {!loading && !error && <AddBook onAdd={handleAddBook} />}
-        </div>
-
-        <div className="books-list">
-          <h3 className="text-center">Library Collection</h3>
-          {!loading && !error && <BookList books={books} setBooks={setBooks} />}
-        </div>
+    <div
+      className="books-container"
+      style={{ display: "flex", gap: "2rem", padding: "1rem" }}
+    >
+      <div className="books-form" style={{ flex: 1 }}>
+        <h2 className="text-center mb-3">Add Book</h2>
+        {loading && <p>Loading books...</p>}
+        {error && <p className="text-danger">⚠️ Error: {error.message}</p>}
+        {!loading && !error && <AddBook onAdd={handleAddBook} />}
       </div>
-    </>
+
+      <div className="books-list" style={{ flex: 2 }}>
+        <h3 className="text-center mb-3">Library Collection</h3>
+        {!loading && !error && <BookList books={books} setBooks={setBooks} />}
+      </div>
+    </div>
   );
 }
 

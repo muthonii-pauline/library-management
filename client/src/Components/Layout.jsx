@@ -6,7 +6,7 @@ import Footer from "./Footer/Footer";
 const Layout = () => {
   return (
     <>
-      <div className="app-container" style={{display: 'flex', flexDirection: 'column', minHeight: '100vh'}}>
+      <div className="app-container">
         <Header />
         <main style={{flex: 1}}>
           <Outlet />

@@ -1,7 +1,6 @@
 html, body {
   height: 100%;
   margin: 0;
-  padding: 0;
 }
 
 body {
@@ -10,11 +9,21 @@ body {
 
 .books-container {
   display: flex;
-  gap: 20px;
+  gap: 20rem;
   align-items: flex-start;
   padding: 1rem;
 }
 
 .books-form {
-  flex: 1 1 40%;
+  flex: 1;
+}
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.books-list table {
+  width: 100%;
+  border-collapse: collapse;
 }

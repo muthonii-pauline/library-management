@@ -33,11 +33,12 @@ function BookList({ books, setBooks }) {
 
   return (
     <>
-      <table>
+      <table className="table table-bordered table-striped">
         <thead>
           <tr>
             <th>Title</th>
             <th>Author</th>
+            <th>Genre</th>
             <th>Available Copies</th>
             <th>Actions</th>
           </tr>
@@ -46,7 +47,7 @@ function BookList({ books, setBooks }) {
           {books.map((book) =>
             editingBook?.id === book.id ? (
               <tr key={book.id}>
-                <td colSpan="4">
+                <td colSpan="5">
                   <EditBook
                     book={book}
                     onUpdate={handleUpdate}
@@ -56,16 +57,25 @@ function BookList({ books, setBooks }) {
               </tr>
             ) : (
               <tr key={book.id}>
-                <td><strong>{book.title}</strong></td>
-                <td>{book.author}</td>
-                <td><em>{book.available_copies}</em></td>
                 <td>
-                  <button onClick={() => setEditingBook(book)}>Edit</button>
+                  <strong>{book.title}</strong>
+                </td>
+                <td>{book.author}</td>
+                <td>{book.genre || "—"}</td>
+                <td>{book.available_copies}</td>
+                <td>
+                  <button
+                    onClick={() => setEditingBook(book)}
+                    className="btn btn-sm btn-warning me-2"
+                  >
+                    Edit
+                  </button>
                   <button
                     onClick={() => {
                       setPendingDeleteId(book.id);
                       setConfirmOpen(true);
                     }}
+                    className="btn btn-sm btn-danger"
                   >
                     Delete
                   </button>
@@ -75,6 +85,7 @@ function BookList({ books, setBooks }) {
           )}
         </tbody>
       </table>
+
       <ConfirmDialog
         open={confirmOpen}
         message="Are you sure you want to delete this book?"
