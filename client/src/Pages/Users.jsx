@@ -146,7 +146,9 @@ function Users() {
     setEditErrors({});
   };
 
-  const filtered = users.filter(
+  const sortedUsers = [...users].sort((a, b) => b.id - a.id);
+
+  const filtered = sortedUsers.filter(
     (u) =>
       u.name.toLowerCase().includes(debouncedSearch) ||
       u.email.toLowerCase().includes(debouncedSearch)

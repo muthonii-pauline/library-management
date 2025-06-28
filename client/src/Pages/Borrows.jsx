@@ -23,6 +23,8 @@ function Borrows() {
   if (loading) return <p>Loading borrow records...</p>;
   if (error) return <p className="text-danger">{error}</p>;
 
+  const sortedBorrows = [...borrows].sort((a, b) => b.id - a.id);
+
   return (
     <div className="borrows-container d-flex flex-wrap gap-4 justify-content-between">
       <div
@@ -35,7 +37,7 @@ function Borrows() {
 
       <div className="borrows-list flex-grow-2" style={{ flex: "1 1 60%" }}>
         <h3 className="text-center">Borrow Records</h3>
-        <BorrowList borrows={borrows} setBorrows={setBorrows} />
+        <BorrowList borrows={sortedBorrows} setBorrows={setBorrows} />
       </div>
     </div>
   );

@@ -23,6 +23,8 @@ function Books() {
   if (loading) return <p>Loading books...</p>;
   if (error) return <p className="text-danger">{error}</p>;
 
+  const sortedBooks = [...books].sort((a, b) => b.id - a.id);
+
   return (
     <div className="books-container d-flex flex-wrap gap-4 justify-content-between">
       <div
@@ -35,7 +37,7 @@ function Books() {
 
       <div className="books-list flex-grow-2" style={{ flex: "1 1 60%" }}>
         <h3 className="text-center">Library Collection</h3>
-        <BookList books={books} setBooks={setBooks} />
+        <BookList books={sortedBooks} setBooks={setBooks} />
       </div>
     </div>
   );
