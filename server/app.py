@@ -1,20 +1,30 @@
-
-
 #!/usr/bin/env python3
 
-from flask import request, render_template
+import os
+from flask import request, render_template, jsonify
 from flask_restful import Resource
-from datetime import datetime
-from flask import jsonify
 from flask_cors import CORS
+from datetime import datetime
 
 from config import app, db, api, migrate
-
-# === Import Models ===
 from models import User, Book, Borrow
 
-CORS(app)
-# === Serializers ===
+# =========================
+# CORS CONFIG BASED ON ENV
+# =========================
+
+env = os.getenv("FLASK_ENV", "development")
+
+if env == "production":
+    # Only allow your frontend domain on Render in production
+    CORS(app, origins=["https://library-management-frontend-2hj1.onrender.com"])
+else:
+    # Allow all origins in development (localhost, etc.)
+    CORS(app)
+
+# =========================
+# SERIALIZERS
+# =========================
 
 def serialize_user(user):
     return {
@@ -28,7 +38,7 @@ def serialize_book(book):
         "id": book.id,
         "title": book.title,
         "author": book.author,
-        "genre":book.genre,
+        "genre": book.genre,
         "available_copies": book.available_copies
     }
 
@@ -44,7 +54,9 @@ def serialize_borrow(borrow):
         "user": serialize_user(borrow.user)
     }
 
-# === Resource Classes ===
+# =========================
+# RESOURCE CLASSES
+# =========================
 
 class UserList(Resource):
     def get(self):
@@ -97,6 +109,7 @@ class BookList(Resource):
         data = request.get_json()
         book.title = data.get('title', book.title)
         book.author = data.get('author', book.author)
+        book.genre = data.get('genre', book.genre)
         book.available_copies = data.get('available_copies', book.available_copies)
         db.session.commit()
         return serialize_book(book), 200
@@ -108,6 +121,8 @@ class BookList(Resource):
             book.title = data['title']
         if 'author' in data:
             book.author = data['author']
+        if 'genre' in data:
+            book.genre = data['genre']
         if 'available_copies' in data:
             book.available_copies = data['available_copies']
         db.session.commit()
@@ -176,20 +191,22 @@ class BorrowReturn(Resource):
         db.session.commit()
         return serialize_borrow(borrow), 200
 
-# === Register Routes ===
+# =========================
+# REGISTER API ROUTES
+# =========================
 
 api.add_resource(UserList, '/api/users', '/api/users/<int:id>')
 api.add_resource(BookList, '/api/books', '/api/books/<int:id>')
 api.add_resource(BorrowList, '/api/borrows', '/api/borrows/<int:id>')
 api.add_resource(BorrowReturn, '/api/borrows/<int:id>/return')
 
-# === React Catch-all + Health Check ===
+# =========================
+# REACT FRONTEND SUPPORT
+# =========================
 
 @app.route('/')
 def index():
     return render_template("index.html")
-
-
 
 @app.errorhandler(404)
 def not_found(e):
@@ -197,8 +214,9 @@ def not_found(e):
         return jsonify({"error": "Not Found"}), 404
     return render_template("index.html")
 
-
-# === Local Dev ===
+# =========================
+# LOCAL DEV START
+# =========================
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
