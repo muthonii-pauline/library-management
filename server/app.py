@@ -6,11 +6,14 @@ from flask import request, render_template
 from flask_restful import Resource
 from datetime import datetime
 from flask import jsonify
+from flask_cors import CORS
 
 from config import app, db, api, migrate
 
 # === Import Models ===
 from models import User, Book, Borrow
+
+CORS(app)
 
 # === Serializers ===
 
