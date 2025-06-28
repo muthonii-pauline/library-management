@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import ConfirmDialog from "../Components/ConfirmDialog";
 
@@ -10,14 +10,18 @@ function Users() {
   // Form states
   const [newName, setNewName] = useState("");
   const [newEmail, setNewEmail] = useState("");
+  const [newErrors, setNewErrors] = useState({});
 
   // Edit states
   const [editId, setEditId] = useState(null);
   const [editName, setEditName] = useState("");
   const [editEmail, setEditEmail] = useState("");
+  const [editErrors, setEditErrors] = useState({});
 
   // Pagination & Search
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const searchTimeout = useRef(null);
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 10;
 
@@ -27,6 +31,7 @@ function Users() {
   const [pendingDeleteId, setPendingDeleteId] = useState(null);
   const [pendingNewUser, setPendingNewUser] = useState(null);
   const [pendingEditId, setPendingEditId] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     axios
@@ -36,18 +41,43 @@ function Users() {
       .finally(() => setLoading(false));
   }, []);
 
+  // Debounce search input to improve performance
+  useEffect(() => {
+    clearTimeout(searchTimeout.current);
+    searchTimeout.current = setTimeout(() => {
+      setDebouncedSearch(searchTerm.trim().toLowerCase());
+      setCurrentPage(1);
+    }, 300);
+    return () => clearTimeout(searchTimeout.current);
+  }, [searchTerm]);
+
+  const validateUser = (name, email) => {
+    const errs = {};
+    if (!name.trim()) errs.name = "Name is required";
+    if (!email.trim()) errs.email = "Email is required";
+    else if (!/\S+@\S+\.\S+/.test(email)) errs.email = "Invalid email format";
+    return errs;
+  };
+
   const triggerAddConfirm = (e) => {
     e.preventDefault();
-    if (!newName.trim() || !newEmail.trim()) return;
-    setConfirmMessage(`Add new user "${newName}" to the system?`);
-    setPendingNewUser({ name: newName, email: newEmail });
-    setConfirmOpen(true);
+    const errs = validateUser(newName, newEmail);
+    setNewErrors(errs);
+    if (Object.keys(errs).length === 0) {
+      setConfirmMessage(`Add new user "${newName}" to the system?`);
+      setPendingNewUser({ name: newName.trim(), email: newEmail.trim() });
+      setConfirmOpen(true);
+    }
   };
 
   const triggerEditConfirm = (id) => {
-    setConfirmMessage(`Save changes for "${editName}"?`);
-    setPendingEditId(id);
-    setConfirmOpen(true);
+    const errs = validateUser(editName, editEmail);
+    setEditErrors(errs);
+    if (Object.keys(errs).length === 0) {
+      setConfirmMessage(`Save changes for "${editName}"?`);
+      setPendingEditId(id);
+      setConfirmOpen(true);
+    }
   };
 
   const triggerDeleteConfirm = (id, name) => {
@@ -57,45 +87,41 @@ function Users() {
   };
 
   const handleConfirm = async () => {
-    if (pendingNewUser) {
-      try {
+    setIsProcessing(true);
+    try {
+      if (pendingNewUser) {
         const res = await axios.post("/api/users", pendingNewUser);
-        setUsers([...users, res.data]);
+        setUsers((prev) => [...prev, res.data]);
         setNewName("");
         setNewEmail("");
         setCurrentPage(Math.ceil((users.length + 1) / recordsPerPage));
-      } catch (err) {
-        alert("Error adding user: " + err.message);
+        setPendingNewUser(null);
       }
-      setPendingNewUser(null);
-    }
 
-    if (pendingEditId) {
-      try {
+      if (pendingEditId) {
         const res = await axios.patch(`/api/users/${pendingEditId}`, {
-          name: editName,
-          email: editEmail,
+          name: editName.trim(),
+          email: editEmail.trim(),
         });
-        setUsers(users.map((u) => (u.id === pendingEditId ? res.data : u)));
+        setUsers((prev) =>
+          prev.map((u) => (u.id === pendingEditId ? res.data : u))
+        );
         cancelEdit();
-      } catch (err) {
-        alert("Error saving changes: " + err.message);
+        setPendingEditId(null);
       }
-      setPendingEditId(null);
-    }
 
-    if (pendingDeleteId !== null) {
-      try {
+      if (pendingDeleteId !== null) {
         await axios.delete(`/api/users/${pendingDeleteId}`);
-        setUsers(users.filter((u) => u.id !== pendingDeleteId));
-      } catch (err) {
-        alert("Error deleting user: " + err.message);
+        setUsers((prev) => prev.filter((u) => u.id !== pendingDeleteId));
+        setPendingDeleteId(null);
       }
-      setPendingDeleteId(null);
+    } catch (err) {
+      alert("Error: " + err.message);
+    } finally {
+      setConfirmOpen(false);
+      setConfirmMessage("");
+      setIsProcessing(false);
     }
-
-    setConfirmOpen(false);
-    setConfirmMessage("");
   };
 
   const handleCancel = () => {
@@ -110,18 +136,20 @@ function Users() {
     setEditId(user.id);
     setEditName(user.name);
     setEditEmail(user.email);
+    setEditErrors({});
   };
 
   const cancelEdit = () => {
     setEditId(null);
     setEditName("");
     setEditEmail("");
+    setEditErrors({});
   };
 
   const filtered = users.filter(
     (u) =>
-      u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      u.email.toLowerCase().includes(searchTerm.toLowerCase())
+      u.name.toLowerCase().includes(debouncedSearch) ||
+      u.email.toLowerCase().includes(debouncedSearch)
   );
 
   const totalPages = Math.ceil(filtered.length / recordsPerPage) || 1;
@@ -136,26 +164,51 @@ function Users() {
 
       <div className="d-flex flex-wrap gap-4 justify-content-center">
         {/* Add Form */}
-        <div className="card shadow-sm p-3" style={{ minWidth: "280px", flex: "0 0 30%" }}>
+        <div
+          className="card shadow-sm p-3"
+          style={{ minWidth: "280px", flex: "0 0 30%" }}
+        >
           <h5 className="mb-3">Add New User</h5>
-          <form onSubmit={triggerAddConfirm} className="d-grid gap-2">
+          <form
+            onSubmit={triggerAddConfirm}
+            className="d-grid gap-2"
+            noValidate
+          >
             <input
               type="text"
-              className="form-control"
+              className={`form-control ${newErrors.name ? "is-invalid" : ""}`}
               placeholder="Full Name"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
-              required
+              aria-invalid={newErrors.name ? "true" : undefined}
+              aria-describedby="newNameError"
             />
+            {newErrors.name && (
+              <div id="newNameError" className="invalid-feedback">
+                {newErrors.name}
+              </div>
+            )}
+
             <input
               type="email"
-              className="form-control"
+              className={`form-control ${newErrors.email ? "is-invalid" : ""}`}
               placeholder="Email Address"
               value={newEmail}
               onChange={(e) => setNewEmail(e.target.value)}
-              required
+              aria-invalid={newErrors.email ? "true" : undefined}
+              aria-describedby="newEmailError"
             />
-            <button type="submit" className="btn btn-primary mt-2">
+            {newErrors.email && (
+              <div id="newEmailError" className="invalid-feedback">
+                {newErrors.email}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              className="btn btn-primary mt-2"
+              disabled={isProcessing}
+            >
               Register User
             </button>
           </form>
@@ -173,10 +226,8 @@ function Users() {
               placeholder="Search by name or email"
               className="form-control w-50"
               value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setCurrentPage(1);
-              }}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              aria-label="Search users by name or email"
             />
             <div>
               Page {currentPage} of {totalPages}
@@ -199,6 +250,8 @@ function Users() {
 
           {loading ? (
             <p>Loading users...</p>
+          ) : paginated.length === 0 ? (
+            <p>No users found.</p>
           ) : (
             <table className="table table-bordered border-primary table-hover shadow-sm">
               <thead className="table-primary">
@@ -213,24 +266,52 @@ function Users() {
                   <tr key={user.id}>
                     <td>
                       {editId === user.id ? (
-                        <input
-                          type="text"
-                          className="form-control"
-                          value={editName}
-                          onChange={(e) => setEditName(e.target.value)}
-                        />
+                        <>
+                          <input
+                            type="text"
+                            className={`form-control ${
+                              editErrors.name ? "is-invalid" : ""
+                            }`}
+                            value={editName}
+                            onChange={(e) => setEditName(e.target.value)}
+                            aria-invalid={editErrors.name ? "true" : undefined}
+                            aria-describedby={`editNameError-${user.id}`}
+                          />
+                          {editErrors.name && (
+                            <div
+                              id={`editNameError-${user.id}`}
+                              className="invalid-feedback"
+                            >
+                              {editErrors.name}
+                            </div>
+                          )}
+                        </>
                       ) : (
                         user.name
                       )}
                     </td>
                     <td>
                       {editId === user.id ? (
-                        <input
-                          type="email"
-                          className="form-control"
-                          value={editEmail}
-                          onChange={(e) => setEditEmail(e.target.value)}
-                        />
+                        <>
+                          <input
+                            type="email"
+                            className={`form-control ${
+                              editErrors.email ? "is-invalid" : ""
+                            }`}
+                            value={editEmail}
+                            onChange={(e) => setEditEmail(e.target.value)}
+                            aria-invalid={editErrors.email ? "true" : undefined}
+                            aria-describedby={`editEmailError-${user.id}`}
+                          />
+                          {editErrors.email && (
+                            <div
+                              id={`editEmailError-${user.id}`}
+                              className="invalid-feedback"
+                            >
+                              {editErrors.email}
+                            </div>
+                          )}
+                        </>
                       ) : (
                         user.email
                       )}
@@ -241,12 +322,14 @@ function Users() {
                           <button
                             className="btn btn-sm btn-success me-2"
                             onClick={() => triggerEditConfirm(user.id)}
+                            disabled={isProcessing}
                           >
                             Save
                           </button>
                           <button
                             className="btn btn-sm btn-secondary"
                             onClick={cancelEdit}
+                            disabled={isProcessing}
                           >
                             Cancel
                           </button>
@@ -256,12 +339,16 @@ function Users() {
                           <button
                             className="btn btn-sm btn-warning me-2"
                             onClick={() => startEdit(user)}
+                            disabled={isProcessing}
                           >
                             Edit
                           </button>
                           <button
                             className="btn btn-sm btn-danger"
-                            onClick={() => triggerDeleteConfirm(user.id, user.name)}
+                            onClick={() =>
+                              triggerDeleteConfirm(user.id, user.name)
+                            }
+                            disabled={isProcessing}
                           >
                             Delete
                           </button>
@@ -281,6 +368,7 @@ function Users() {
         message={confirmMessage}
         onConfirm={handleConfirm}
         onCancel={handleCancel}
+        confirmDisabled={isProcessing}
       />
     </div>
   );

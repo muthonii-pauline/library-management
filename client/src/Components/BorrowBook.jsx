@@ -5,6 +5,9 @@ import axios from "axios";
 import ConfirmDialog from "./ConfirmDialog";
 import Select from "react-select";
 
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:5555";
+
 function BorrowBook({ onAdd }) {
   const [users, setUsers] = useState([]);
   const [books, setBooks] = useState([]);
@@ -13,8 +16,8 @@ function BorrowBook({ onAdd }) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    axios.get("/api/users").then((res) => setUsers(res.data));
-    axios.get("/api/books").then((res) => setBooks(res.data));
+    axios.get(`${API_BASE_URL}/api/users`).then((res) => setUsers(res.data));
+    axios.get(`${API_BASE_URL}/api/books`).then((res) => setBooks(res.data));
   }, []);
 
   const userOptions = users.map((u) => ({
@@ -47,10 +50,14 @@ function BorrowBook({ onAdd }) {
   const handleConfirm = async () => {
     setConfirmOpen(false);
     try {
-      const res = await axios.post("/api/borrows", pendingValues);
+      const res = await axios.post(
+        `${API_BASE_URL}/api/borrows`,
+        pendingValues
+      );
       onAdd(res.data);
       formik.resetForm();
       setPendingValues(null);
+      setError(null);
     } catch (err) {
       console.error("Borrow failed:", err);
       setError("⚠️ Could not borrow. Book may be unavailable.");

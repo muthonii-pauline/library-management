@@ -5,14 +5,23 @@ import BookList from "../Components/BookList";
 
 function Books() {
   const [books, setBooks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    axios.get("/api/books").then((res) => setBooks(res.data));
+    axios
+      .get("/api/books")
+      .then((res) => setBooks(res.data))
+      .catch(() => setError("Failed to load books"))
+      .finally(() => setLoading(false));
   }, []);
 
   const handleAddBook = (book) => {
     setBooks((prev) => [...prev, book]);
   };
+
+  if (loading) return <p>Loading books...</p>;
+  if (error) return <p className="text-danger">{error}</p>;
 
   return (
     <div className="books-container d-flex flex-wrap gap-4 justify-content-between">

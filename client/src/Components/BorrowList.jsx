@@ -2,6 +2,9 @@ import { useState } from "react";
 import axios from "axios";
 import ConfirmDialog from "./ConfirmDialog";
 
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:5555";
+
 function BorrowList({ borrows, setBorrows }) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingReturnId, setPendingReturnId] = useState(null);
@@ -13,13 +16,17 @@ function BorrowList({ borrows, setBorrows }) {
   const recordsPerPage = 10;
 
   const handleDelete = async (id) => {
-    await axios.delete(`/api/borrows/${id}`);
-    setBorrows(borrows.filter((b) => b.id !== id));
+    try {
+      await axios.delete(`${API_BASE_URL}/api/borrows/${id}`);
+      setBorrows(borrows.filter((b) => b.id !== id));
+    } catch (err) {
+      console.error("Delete failed:", err);
+    }
   };
 
   const markReturned = async (id) => {
     try {
-      const res = await axios.patch(`/api/borrows/${id}/return`);
+      const res = await axios.patch(`${API_BASE_URL}/api/borrows/${id}/return`);
       setBorrows(borrows.map((b) => (b.id === id ? res.data : b)));
     } catch (err) {
       console.error("Failed to mark as returned:", err);
@@ -54,7 +61,7 @@ function BorrowList({ borrows, setBorrows }) {
         b.book?.title.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-  const totalPages = Math.ceil(filtered.length / recordsPerPage);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / recordsPerPage));
   const paginated = filtered.slice(
     (currentPage - 1) * recordsPerPage,
     currentPage * recordsPerPage
@@ -104,51 +111,61 @@ function BorrowList({ borrows, setBorrows }) {
           </tr>
         </thead>
         <tbody>
-          {paginated.map((borrow) => (
-            <tr
-              key={borrow.id}
-              className={
-                borrow.status === "borrowed" ? "table-warning" : "table-success"
-              }
-            >
-              <td>{borrow.user?.name}</td>
-              <td>{borrow.book?.title}</td>
-              <td>{borrow.borrow_date?.slice(0, 10)}</td>
-              <td>
-                {borrow.status === "borrowed"
-                  ? "Borrowed"
-                  : `Returned on ${borrow.return_date?.slice(0, 10)}`}
+          {paginated.length === 0 ? (
+            <tr>
+              <td colSpan="6" className="text-center text-muted">
+                No borrow records found.
               </td>
-              <td className="text-center">
-                {borrow.status === "borrowed" ? (
+            </tr>
+          ) : (
+            paginated.map((borrow) => (
+              <tr
+                key={borrow.id}
+                className={
+                  borrow.status === "borrowed"
+                    ? "table-warning"
+                    : "table-success"
+                }
+              >
+                <td>{borrow.user?.name}</td>
+                <td>{borrow.book?.title}</td>
+                <td>{borrow.borrow_date?.slice(0, 10)}</td>
+                <td>
+                  {borrow.status === "borrowed"
+                    ? "Borrowed"
+                    : `Returned on ${borrow.return_date?.slice(0, 10)}`}
+                </td>
+                <td className="text-center">
+                  {borrow.status === "borrowed" ? (
+                    <button
+                      className="btn btn-sm btn-success"
+                      onClick={() => {
+                        setPendingReturnId(borrow.id);
+                        setConfirmMessage("Mark this borrow as returned?");
+                        setConfirmOpen(true);
+                      }}
+                    >
+                      Mark Returned
+                    </button>
+                  ) : (
+                    <span className="text-muted">✓ Returned</span>
+                  )}
+                </td>
+                <td className="text-center">
                   <button
-                    className="btn btn-sm btn-success"
+                    className="btn btn-sm btn-danger"
                     onClick={() => {
-                      setPendingReturnId(borrow.id);
-                      setConfirmMessage("Mark this borrow as returned?");
+                      setPendingDeleteId(borrow.id);
+                      setConfirmMessage("Delete this borrow record?");
                       setConfirmOpen(true);
                     }}
                   >
-                    Mark Returned
+                    Delete
                   </button>
-                ) : (
-                  <span className="text-muted">✓ Returned</span>
-                )}
-              </td>
-              <td className="text-center">
-                <button
-                  className="btn btn-sm btn-danger"
-                  onClick={() => {
-                    setPendingDeleteId(borrow.id);
-                    setConfirmMessage("Delete this borrow record?");
-                    setConfirmOpen(true);
-                  }}
-                >
-                  Delete
-                </button>
-              </td>
-            </tr>
-          ))}
+                </td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
 

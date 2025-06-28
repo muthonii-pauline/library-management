@@ -4,6 +4,9 @@ import * as Yup from "yup";
 import axios from "axios";
 import ConfirmDialog from "./ConfirmDialog";
 
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:5555";
+
 function AddUser({ onAdd }) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingValues, setPendingValues] = useState(null);
@@ -28,12 +31,13 @@ function AddUser({ onAdd }) {
   const handleConfirm = async () => {
     setConfirmOpen(false);
     try {
-      const res = await axios.post("/api/users", pendingValues);
+      const res = await axios.post(`${API_BASE_URL}/api/users`, pendingValues);
       onAdd(res.data);
       formik.resetForm();
       setPendingValues(null);
     } catch (err) {
       console.error("Failed to register user:", err);
+      alert("Error: Could not register user. Please try again.");
     }
   };
 

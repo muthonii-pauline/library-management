@@ -3,7 +3,6 @@ import React, { useEffect } from "react";
 function ConfirmDialog({ open, message, onConfirm, onCancel }) {
   if (!open) return null;
 
-  // Prevent background scroll while modal is open
   useEffect(() => {
     document.body.style.overflow = "hidden";
     return () => {
@@ -13,7 +12,6 @@ function ConfirmDialog({ open, message, onConfirm, onCancel }) {
 
   return (
     <>
-      {/* Modal Overlay */}
       <div
         className="modal show fade d-block"
         tabIndex="-1"
@@ -31,7 +29,6 @@ function ConfirmDialog({ open, message, onConfirm, onCancel }) {
           justifyContent: "center",
         }}
       >
-        {/* Modal Dialog */}
         <div
           className="modal-dialog modal-dialog-centered"
           role="document"

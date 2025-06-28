@@ -18,7 +18,9 @@ function EditBook({ book, onUpdate, onCancel }) {
     validationSchema: Yup.object({
       title: Yup.string().required("Required"),
       author: Yup.string().required("Required"),
-      available_copies: Yup.number().required("Required").min(0),
+      available_copies: Yup.number()
+        .required("Required")
+        .min(0, "Cannot be negative"),
     }),
     onSubmit: (values) => {
       setPendingValues(values);
@@ -44,33 +46,80 @@ function EditBook({ book, onUpdate, onCancel }) {
 
   return (
     <>
-      <form onSubmit={formik.handleSubmit}>
-        <input
-          name="title"
-          onChange={formik.handleChange}
-          value={formik.values.title}
-        />
-        <input
-          name="author"
-          onChange={formik.handleChange}
-          value={formik.values.author}
-        />
-        <input
-          name="genre"
-          onChange={formik.handleChange}
-          value={formik.values.genre}
-        />
-        <input
-          name="available_copies"
-          type="number"
-          onChange={formik.handleChange}
-          value={formik.values.available_copies}
-        />
-        <button type="submit">Save</button>
-        <button type="button" onClick={onCancel}>
+      <form onSubmit={formik.handleSubmit} className="p-3">
+        <div className="mb-3">
+          <label>Title</label>
+          <input
+            name="title"
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            value={formik.values.title}
+            className="form-control"
+            placeholder="Enter book title"
+          />
+          {formik.touched.title && formik.errors.title && (
+            <small className="text-danger">{formik.errors.title}</small>
+          )}
+        </div>
+
+        <div className="mb-3">
+          <label>Author</label>
+          <input
+            name="author"
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            value={formik.values.author}
+            className="form-control"
+            placeholder="Enter author name"
+          />
+          {formik.touched.author && formik.errors.author && (
+            <small className="text-danger">{formik.errors.author}</small>
+          )}
+        </div>
+
+        <div className="mb-3">
+          <label>Genre</label>
+          <input
+            name="genre"
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            value={formik.values.genre}
+            className="form-control"
+            placeholder="Enter genre (optional)"
+          />
+        </div>
+
+        <div className="mb-3">
+          <label>Available Copies</label>
+          <input
+            name="available_copies"
+            type="number"
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            value={formik.values.available_copies}
+            className="form-control"
+            min={0}
+          />
+          {formik.touched.available_copies &&
+            formik.errors.available_copies && (
+              <small className="text-danger">
+                {formik.errors.available_copies}
+              </small>
+            )}
+        </div>
+
+        <button
+          type="submit"
+          className="btn btn-primary me-2"
+          disabled={confirmOpen}
+        >
+          Save
+        </button>
+        <button type="button" onClick={onCancel} className="btn btn-secondary">
           Cancel
         </button>
       </form>
+
       <ConfirmDialog
         open={confirmOpen}
         message="Are you sure you want to save changes to this book?"

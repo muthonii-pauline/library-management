@@ -3,6 +3,10 @@ import axios from "axios";
 import EditUser from "./EditUser";
 import ConfirmDialog from "./ConfirmDialog";
 
+// ✅ Use environment variable or fallback
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:5555";
+
 function UserList({ users, setUsers }) {
   const [editingUser, setEditingUser] = useState(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -10,7 +14,7 @@ function UserList({ users, setUsers }) {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`/api/users/${id}`);
+      await axios.delete(`${API_BASE_URL}/api/users/${id}`);
       setUsers(users.filter((u) => u.id !== id));
     } catch (error) {
       console.error("Delete failed:", error);
@@ -42,12 +46,12 @@ function UserList({ users, setUsers }) {
 
   return (
     <>
-      <table>
-        <thead>
+      <table className="table table-bordered table-hover shadow-sm">
+        <thead className="table-light">
           <tr>
             <th>Name</th>
             <th>Email</th>
-            <th>Actions</th>
+            <th className="text-center">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -66,9 +70,19 @@ function UserList({ users, setUsers }) {
               <tr key={user.id}>
                 <td>{user.name}</td>
                 <td>{user.email}</td>
-                <td>
-                  <button onClick={() => setEditingUser(user)}>Edit</button>
-                  <button onClick={() => confirmDelete(user)}>Delete</button>
+                <td className="text-center">
+                  <button
+                    className="btn btn-sm btn-warning me-2"
+                    onClick={() => setEditingUser(user)}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="btn btn-sm btn-danger"
+                    onClick={() => confirmDelete(user)}
+                  >
+                    Delete
+                  </button>
                 </td>
               </tr>
             )

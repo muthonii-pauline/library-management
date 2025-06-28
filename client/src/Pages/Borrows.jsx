@@ -5,14 +5,23 @@ import BorrowList from "../Components/BorrowList";
 
 function Borrows() {
   const [borrows, setBorrows] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    axios.get("/api/borrows").then((res) => setBorrows(res.data));
+    axios
+      .get("/api/borrows")
+      .then((res) => setBorrows(res.data))
+      .catch(() => setError("Failed to load borrow records"))
+      .finally(() => setLoading(false));
   }, []);
 
   const handleAddBorrow = (record) => {
     setBorrows((prev) => [...prev, record]);
   };
+
+  if (loading) return <p>Loading borrow records...</p>;
+  if (error) return <p className="text-danger">{error}</p>;
 
   return (
     <div className="borrows-container d-flex flex-wrap gap-4 justify-content-between">
