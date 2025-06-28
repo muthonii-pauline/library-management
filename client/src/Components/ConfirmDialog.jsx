@@ -1,34 +1,67 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 function ConfirmDialog({ open, message, onConfirm, onCancel }) {
   if (!open) return null;
 
+  // Prevent background scroll while modal is open
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, []);
+
   return (
-    <div style={{
-      position: "fixed",
-      top: 0, left: 0, right: 0, bottom: 0,
-      backgroundColor: "rgba(0,0,0,0.5)",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      zIndex: 1000,
-    }}>
-      <div style={{
-        backgroundColor: "white",
-        padding: "20px",
-        borderRadius: "8px",
-        maxWidth: "400px",
-        width: "100%",
-        boxShadow: "0 2px 10px rgba(0,0,0,0.3)",
-        textAlign: "center",
-      }}>
-        <p>{message}</p>
-        <div style={{ marginTop: "20px" }}>
-          <button onClick={onConfirm} style={{ marginRight: "10px" }}>Confirm</button>
-          <button onClick={onCancel}>Cancel</button>
+    <>
+      {/* Modal Overlay */}
+      <div
+        className="modal show fade d-block"
+        tabIndex="-1"
+        role="dialog"
+        style={{
+          backgroundColor: "rgba(0, 0, 0, 0.5)",
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100vw",
+          height: "100vh",
+          zIndex: 1050,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        {/* Modal Dialog */}
+        <div
+          className="modal-dialog modal-dialog-centered"
+          role="document"
+          style={{ maxWidth: "500px", width: "90%" }}
+        >
+          <div className="modal-content border border-primary shadow">
+            <div className="modal-header bg-primary text-white">
+              <h5 className="modal-title">Confirm Action</h5>
+              <button
+                type="button"
+                className="btn-close"
+                aria-label="Close"
+                onClick={onCancel}
+              ></button>
+            </div>
+            <div className="modal-body">
+              <p className="fs-5">{message}</p>
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-secondary" onClick={onCancel}>
+                Cancel
+              </button>
+              <button className="btn btn-danger" onClick={onConfirm}>
+                Yes, Proceed
+              </button>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
