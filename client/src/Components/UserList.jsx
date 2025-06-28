@@ -3,7 +3,6 @@ import axios from "axios";
 import EditUser from "./EditUser";
 import ConfirmDialog from "./ConfirmDialog";
 
-// ✅ Use environment variable or fallback
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:5555";
 

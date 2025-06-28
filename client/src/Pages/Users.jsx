@@ -94,7 +94,7 @@ function Users() {
         setUsers((prev) => [...prev, res.data]);
         setNewName("");
         setNewEmail("");
-        setCurrentPage(Math.ceil((users.length + 1) / recordsPerPage));
+        alert("User added successfully.");
         setPendingNewUser(null);
       }
 

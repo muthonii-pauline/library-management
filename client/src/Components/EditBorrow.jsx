@@ -5,7 +5,7 @@ import axios from "axios";
 function EditBorrow({ borrow, onUpdate, onCancel }) {
   const formik = useFormik({
     initialValues: {
-      return_date: borrow.return_date ? borrow.return_date.split("T")[0] : "", // format ISO datetime for input[type=date]
+      return_date: borrow.return_date ? borrow.return_date.split("T")[0] : "",
       status: borrow.status,
     },
     validationSchema: Yup.object({
