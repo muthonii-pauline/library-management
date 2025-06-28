@@ -9,22 +9,14 @@ from datetime import datetime
 from config import app, db, api, migrate
 from models import User, Book, Borrow
 
-# =========================
-# CORS CONFIG BASED ON ENV
-# =========================
 
 env = os.getenv("FLASK_ENV", "development")
 
 if env == "production":
-    # Only allow your frontend domain on Render in production
     CORS(app, origins=["https://library-management-frontend-2hj1.onrender.com"])
 else:
-    # Allow all origins in development (localhost, etc.)
     CORS(app)
 
-# =========================
-# SERIALIZERS
-# =========================
 
 def serialize_user(user):
     return {
