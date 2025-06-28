@@ -5,44 +5,28 @@ import BookList from "../Components/BookList";
 
 function Books() {
   const [books, setBooks] = useState([]);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios
-      .get("/api/books")
-      .then((res) => {
-        setBooks(res.data);
-        setError(null);
-      })
-      .catch((err) => {
-        console.error("Error fetching books:", err);
-        setError(err);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    axios.get("/api/books").then((res) => setBooks(res.data));
   }, []);
 
-  const handleAddBook = (newBook) => {
-    setBooks([...books, newBook]);
+  const handleAddBook = (book) => {
+    setBooks((prev) => [...prev, book]);
   };
 
   return (
-    <div
-      className="books-container"
-      style={{ display: "flex", gap: "2rem", padding: "1rem" }}
-    >
-      <div className="books-form" style={{ flex: 1 }}>
-        <h2 className="text-center mb-3">Add Book</h2>
-        {loading && <p>Loading books...</p>}
-        {error && <p className="text-danger">⚠️ Error: {error.message}</p>}
-        {!loading && !error && <AddBook onAdd={handleAddBook} />}
+    <div className="books-container d-flex flex-wrap gap-4 justify-content-between">
+      <div
+        className="books-form flex-grow-1"
+        style={{ minWidth: "300px", maxWidth: "400px" }}
+      >
+        <h2 className="text-center">Add a Book</h2>
+        <AddBook onAdd={handleAddBook} />
       </div>
 
-      <div className="books-list" style={{ flex: 2 }}>
-        <h3 className="text-center mb-3">Library Collection</h3>
-        {!loading && !error && <BookList books={books} setBooks={setBooks} />}
+      <div className="books-list flex-grow-2" style={{ flex: "1 1 60%" }}>
+        <h3 className="text-center">Library Collection</h3>
+        <BookList books={books} setBooks={setBooks} />
       </div>
     </div>
   );

@@ -34,7 +34,6 @@ function AddBook({ onAdd }) {
       const res = await axios.post("/api/books", pendingValues);
       onAdd(res.data);
       formik.resetForm();
-      setPendingValues(null);
     } catch (err) {
       console.error("Failed to add book:", err);
     }
@@ -47,8 +46,7 @@ function AddBook({ onAdd }) {
 
   return (
     <>
-      <form className="mb-4" onSubmit={formik.handleSubmit}>
-
+      <form className="mb-2" onSubmit={formik.handleSubmit}>
         <input
           name="title"
           placeholder="Title"
@@ -93,7 +91,7 @@ function AddBook({ onAdd }) {
           </small>
         )}
 
-        <div style={{ display: "flex", justifyContent: "center" }}>
+        <div className="text-center">
           <button type="submit" className="btn btn-primary">
             Add Book
           </button>

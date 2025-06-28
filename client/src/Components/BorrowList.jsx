@@ -45,7 +45,7 @@ function BorrowList({ borrows, setBorrows }) {
     setConfirmMessage("");
   };
 
-  // === Search & Filter ===
+  // === Search & Pagination ===
   const filtered = [...borrows]
     .sort((a, b) => new Date(b.borrow_date) - new Date(a.borrow_date))
     .filter(
@@ -53,7 +53,7 @@ function BorrowList({ borrows, setBorrows }) {
         b.user?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         b.book?.title.toLowerCase().includes(searchTerm.toLowerCase())
     );
-   //=== Pagination===
+
   const totalPages = Math.ceil(filtered.length / recordsPerPage);
   const paginated = filtered.slice(
     (currentPage - 1) * recordsPerPage,
@@ -92,14 +92,15 @@ function BorrowList({ borrows, setBorrows }) {
         </div>
       </div>
 
-      <table className="table table-bordered border-primary">
+      <table className="table table-bordered border-primary shadow-sm">
         <thead className="table-light">
           <tr>
             <th>User</th>
             <th>Book</th>
             <th>Borrow Date</th>
             <th>Status</th>
-            <th className="text-center">Actions</th>
+            <th className="text-center">Return</th>
+            <th className="text-center">Delete</th>
           </tr>
         </thead>
         <tbody>
@@ -119,25 +120,27 @@ function BorrowList({ borrows, setBorrows }) {
                   : `Returned on ${borrow.return_date?.slice(0, 10)}`}
               </td>
               <td className="text-center">
-                {borrow.status === "borrowed" && (
+                {borrow.status === "borrowed" ? (
                   <button
-                    className="btn btn-sm btn-success me-2"
+                    className="btn btn-sm btn-success"
                     onClick={() => {
                       setPendingReturnId(borrow.id);
-                      setConfirmMessage("Mark this book as returned?");
+                      setConfirmMessage("Mark this borrow as returned?");
                       setConfirmOpen(true);
                     }}
                   >
                     Mark Returned
                   </button>
+                ) : (
+                  <span className="text-muted">✓ Returned</span>
                 )}
+              </td>
+              <td className="text-center">
                 <button
                   className="btn btn-sm btn-danger"
                   onClick={() => {
                     setPendingDeleteId(borrow.id);
-                    setConfirmMessage(
-                      "Are you sure you want to delete this record from the system?"
-                    );
+                    setConfirmMessage("Delete this borrow record?");
                     setConfirmOpen(true);
                   }}
                 >

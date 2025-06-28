@@ -5,16 +5,18 @@ function BookList({ books, setBooks }) {
   const [search, setSearch] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [editedBook, setEditedBook] = useState({});
-
-  const booksPerPage = 10;
   const [currentPage, setCurrentPage] = useState(1);
+  const booksPerPage = 10;
+
   const filteredBooks = books.filter((book) =>
     book.title.toLowerCase().includes(search.toLowerCase())
   );
+
   const paginatedBooks = filteredBooks.slice(
     (currentPage - 1) * booksPerPage,
     currentPage * booksPerPage
   );
+
   const pageCount = Math.ceil(filteredBooks.length / booksPerPage);
 
   const handleEdit = (book) => {
@@ -40,30 +42,47 @@ function BookList({ books, setBooks }) {
 
   return (
     <div>
-      {/* Search */}
-      <div className="mb-3">
+      <div className="mb-3 d-flex justify-content-between align-items-center">
         <input
           type="text"
-          className="form-control"
-          placeholder="Search by title..."
+          className="form-control w-50"
+          placeholder="Search by title"
           value={search}
           onChange={(e) => {
             setSearch(e.target.value);
             setCurrentPage(1);
           }}
         />
+        {pageCount > 1 && (
+          <div>
+            Page {currentPage} of {pageCount}
+            <button
+              className="btn btn-sm btn-outline-primary mx-1"
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((p) => p - 1)}
+            >
+              Prev
+            </button>
+            <button
+              className="btn btn-sm btn-outline-primary"
+              disabled={currentPage === pageCount}
+              onClick={() => setCurrentPage((p) => p + 1)}
+            >
+              Next
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* Table */}
       <div style={{ overflowX: "auto" }}>
-        <table className="table table-bordered table-striped">
-          <thead>
+        <table className="table table-bordered border-primary table-hover shadow-sm">
+          <thead className="table-primary">
             <tr>
               <th>Title</th>
               <th>Author</th>
               <th>Genre</th>
-              <th>Available Copies</th>
-              <th>Actions</th>
+              <th>Available</th>
+              <th className="text-center">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -104,7 +123,7 @@ function BookList({ books, setBooks }) {
                       className="form-control"
                     />
                   </td>
-                  <td>
+                  <td className="text-center">
                     <button
                       onClick={handleUpdate}
                       className="btn btn-sm btn-success me-2"
@@ -121,13 +140,11 @@ function BookList({ books, setBooks }) {
                 </tr>
               ) : (
                 <tr key={book.id}>
-                  <td>
-                    <strong>{book.title}</strong>
-                  </td>
+                  <td>{book.title}</td>
                   <td>{book.author}</td>
                   <td>{book.genre || "—"}</td>
                   <td>{book.available_copies}</td>
-                  <td>
+                  <td className="text-center">
                     <button
                       onClick={() => handleEdit(book)}
                       className="btn btn-sm btn-warning"
@@ -141,27 +158,6 @@ function BookList({ books, setBooks }) {
           </tbody>
         </table>
       </div>
-
-      {/* Pagination */}
-      {pageCount > 1 && (
-        <nav className="mt-3">
-          <ul className="pagination justify-content-center">
-            {Array.from({ length: pageCount }, (_, i) => (
-              <li
-                key={i}
-                className={`page-item ${currentPage === i + 1 ? "active" : ""}`}
-              >
-                <button
-                  className="page-link"
-                  onClick={() => setCurrentPage(i + 1)}
-                >
-                  {i + 1}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      )}
     </div>
   );
 }
