@@ -1,7 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
 
-// Use env variable or fallback to localhost:5555 for local dev
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:5555";
 

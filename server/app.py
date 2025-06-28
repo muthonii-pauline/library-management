@@ -13,6 +13,7 @@ from config import app, db, api, migrate
 # === Import Models ===
 from models import User, Book, Borrow
 
+CORS(app)
 # === Serializers ===
 
 def serialize_user(user):
