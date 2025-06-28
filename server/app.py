@@ -6,6 +6,20 @@ from flask_restful import Resource
 from datetime import datetime
 
 from config import app, db, api, migrate
+import os
+from flask import Flask
+from flask_cors import CORS
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+from flask_restful import Api
+from sqlalchemy import MetaData
+
+from config import ProductionConfig, DevelopmentConfig
+
+# Setup app config depending on env
+app = Flask(__name__)
+env = os.getenv("FLASK_ENV", "development")
+app.config.from_object(ProductionConfig if env == "production" else DevelopmentConfig)
 
 # === Import Models ===
 from models import User, Book, Borrow
@@ -172,14 +186,13 @@ class BorrowReturn(Resource):
         db.session.commit()
         return serialize_borrow(borrow), 200
 
-# === Register Routes ===
+# === Routes ===
 
 api.add_resource(UserList, '/api/users', '/api/users/<int:id>')
 api.add_resource(BookList, '/api/books', '/api/books/<int:id>')
 api.add_resource(BorrowList, '/api/borrows', '/api/borrows/<int:id>')
 api.add_resource(BorrowReturn, '/api/borrows/<int:id>/return')
 
-# === React Catch-all + Health Check ===
 
 @app.route('/')
 def index():
@@ -189,7 +202,3 @@ def index():
 def not_found(e):
     return render_template("index.html")
 
-# === Local Dev ===
-
-if __name__ == '__main__':
-    app.run(port=5555, debug=True)

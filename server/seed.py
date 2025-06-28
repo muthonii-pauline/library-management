@@ -15,7 +15,7 @@ fake = Faker()
 
 if __name__ == '__main__':
     with app.app_context():
-        print("🌱 Starting seed...")
+        print("Starting seed...")
 
         # Clear existing data
         print("🧹 Clearing tables...")
@@ -24,7 +24,7 @@ if __name__ == '__main__':
         Book.query.delete()
 
         # Create users
-        print("👤 Seeding users...")
+        print("Seeding users...")
         users = []
         for _ in range(50):
             user = User(
@@ -36,7 +36,7 @@ if __name__ == '__main__':
         db.session.commit()
 
         # Create books
-        print("📚 Seeding books...")
+        print("Seeding books...")
         genres = ["Mystery", "Romance", "Sci-Fi", "Fantasy", "History", "Drama"]
         books = []
         for _ in range(50):
@@ -49,9 +49,9 @@ if __name__ == '__main__':
             books.append(book)
         db.session.add_all(books)
         db.session.commit()
-
-        # Create borrow records
-        print("🔁 Seeding borrows...")
+        
+        # borrow records
+        print("Seeding borrows...")
         borrows = []
         for _ in range(25):
             user = rc(users)
