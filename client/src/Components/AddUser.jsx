@@ -207,7 +207,7 @@ function Users() {
                         className="btn btn-sm btn-danger"
                         onClick={() => {
                           setPendingDeleteId(user.id);
-                          setConfirmMessage(`Delete user ${user.name}?`);
+                          setConfirmMessage(`Are you sure you want to delete user ${user.name}?`);
                           setConfirmOpen(true);
                         }}
                       >

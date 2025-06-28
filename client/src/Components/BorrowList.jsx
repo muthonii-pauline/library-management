@@ -124,7 +124,7 @@ function BorrowList({ borrows, setBorrows }) {
                     className="btn btn-sm btn-success me-2"
                     onClick={() => {
                       setPendingReturnId(borrow.id);
-                      setConfirmMessage("Mark this borrow as returned?");
+                      setConfirmMessage("Mark this book as returned?");
                       setConfirmOpen(true);
                     }}
                   >
@@ -135,7 +135,9 @@ function BorrowList({ borrows, setBorrows }) {
                   className="btn btn-sm btn-danger"
                   onClick={() => {
                     setPendingDeleteId(borrow.id);
-                    setConfirmMessage("Delete this borrow record?");
+                    setConfirmMessage(
+                      "Are you sure you want to delete this record from the system?"
+                    );
                     setConfirmOpen(true);
                   }}
                 >

@@ -104,7 +104,7 @@ function BorrowBook({ onAdd }) {
 
       <ConfirmDialog
         open={confirmOpen}
-        message="Confirm borrowing this book?"
+        message="Confirm lending this book to the selected user?"
         onConfirm={handleConfirm}
         onCancel={handleCancel}
       />
