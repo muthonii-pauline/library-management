@@ -13,7 +13,8 @@ function EditBorrow({ borrow, onUpdate, onCancel }) {
     }),
     onSubmit: async (values, { setSubmitting }) => {
       try {
-        const res = await axios.patch(`/api/borrows/${borrow.id}`, values);
+        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5555";
+        const res = await axios.patch(`${API_BASE_URL}/api/borrows/${borrow.id}`, values);
         onUpdate(res.data);
       } catch (err) {
         console.error("Update failed", err);
