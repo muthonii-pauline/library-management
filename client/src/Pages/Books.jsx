@@ -9,8 +9,9 @@ function Books() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5555";
     axios
-      .get("/api/books")
+      .get(`${API_BASE_URL}/api/books`)
       .then((res) => setBooks(res.data))
       .catch(() => setError("Failed to load books"))
       .finally(() => setLoading(false));

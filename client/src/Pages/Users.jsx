@@ -34,8 +34,9 @@ function Users() {
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5555";
     axios
-      .get("/api/users")
+      .get(`${API_BASE_URL}/api/users`)
       .then((res) => setUsers(res.data))
       .catch((err) => setError(err))
       .finally(() => setLoading(false));
@@ -90,7 +91,8 @@ function Users() {
     setIsProcessing(true);
     try {
       if (pendingNewUser) {
-        const res = await axios.post("/api/users", pendingNewUser);
+        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5555";
+        const res = await axios.post(`${API_BASE_URL}/api/users`, pendingNewUser);
         setUsers((prev) => [...prev, res.data]);
         setNewName("");
         setNewEmail("");
@@ -99,7 +101,8 @@ function Users() {
       }
 
       if (pendingEditId) {
-        const res = await axios.patch(`/api/users/${pendingEditId}`, {
+        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5555";
+        const res = await axios.patch(`${API_BASE_URL}/api/users/${pendingEditId}`, {
           name: editName.trim(),
           email: editEmail.trim(),
         });
@@ -111,7 +114,8 @@ function Users() {
       }
 
       if (pendingDeleteId !== null) {
-        await axios.delete(`/api/users/${pendingDeleteId}`);
+        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5555";
+        await axios.delete(`${API_BASE_URL}/api/users/${pendingDeleteId}`);
         setUsers((prev) => prev.filter((u) => u.id !== pendingDeleteId));
         setPendingDeleteId(null);
       }

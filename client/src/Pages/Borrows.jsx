@@ -9,8 +9,9 @@ function Borrows() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5555";
     axios
-      .get("/api/borrows")
+      .get(`${API_BASE_URL}/api/borrows`)
       .then((res) => setBorrows(res.data))
       .catch(() => setError("Failed to load borrow records"))
       .finally(() => setLoading(false));
