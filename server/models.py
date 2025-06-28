@@ -47,7 +47,7 @@ class Borrow(db.Model, SerializerMixin):
     book_id = db.Column(db.Integer, db.ForeignKey('books.id'))
     borrow_date = db.Column(db.DateTime, default=datetime)
     return_date = db.Column(db.DateTime, nullable=True)
-    status = db.Column(db.String, default="borrowed")  # e.g., 'borrowed', 'returned'
+    status = db.Column(db.String, default="borrowed")
 
     # Relationships
     user = db.relationship('User', back_populates='borrows')

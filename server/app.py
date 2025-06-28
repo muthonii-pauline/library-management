@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python3
 
 from flask import request, render_template
@@ -5,6 +6,8 @@ from flask_restful import Resource
 from datetime import datetime
 
 from config import app, db, api, migrate
+
+# === Import Models ===
 from models import User, Book, Borrow
 
 # === Serializers ===
@@ -21,7 +24,7 @@ def serialize_book(book):
         "id": book.id,
         "title": book.title,
         "author": book.author,
-        "genre": book.genre,
+        "genre":book.genre,
         "available_copies": book.available_copies
     }
 
@@ -114,8 +117,7 @@ class BookList(Resource):
 
 class BorrowList(Resource):
     def get(self):
-        borrows = Borrow.query.all()
-        return [serialize_borrow(b) for b in borrows], 200
+        return [serialize_borrow(b) for b in Borrow.query.all()], 200
 
     def post(self):
         data = request.get_json()
@@ -132,7 +134,6 @@ class BorrowList(Resource):
             db.session.add(borrow)
             db.session.commit()
             return serialize_borrow(borrow), 201
-
         return {"error": "Book not available"}, 400
 
     def put(self, id):
@@ -171,14 +172,14 @@ class BorrowReturn(Resource):
         db.session.commit()
         return serialize_borrow(borrow), 200
 
-# === Register API Resources ===
+# === Register Routes ===
 
 api.add_resource(UserList, '/api/users', '/api/users/<int:id>')
 api.add_resource(BookList, '/api/books', '/api/books/<int:id>')
 api.add_resource(BorrowList, '/api/borrows', '/api/borrows/<int:id>')
 api.add_resource(BorrowReturn, '/api/borrows/<int:id>/return')
 
-# === Catch-all routes for React frontend ===
+# === React Catch-all + Health Check ===
 
 @app.route('/')
 def index():
@@ -188,7 +189,7 @@ def index():
 def not_found(e):
     return render_template("index.html")
 
-# === App Entry Point ===
+# === Local Dev ===
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)

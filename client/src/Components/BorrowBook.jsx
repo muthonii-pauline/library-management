@@ -1,48 +1,60 @@
-// Components/BorrowBook.jsx
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
 import ConfirmDialog from "./ConfirmDialog";
+import Select from "react-select";
 
 function BorrowBook({ onAdd }) {
   const [users, setUsers] = useState([]);
   const [books, setBooks] = useState([]);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingValues, setPendingValues] = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     axios.get("/api/users").then((res) => setUsers(res.data));
     axios.get("/api/books").then((res) => setBooks(res.data));
   }, []);
 
+  const userOptions = users.map((u) => ({
+    value: u.id,
+    label: `${u.name} (${u.email})`,
+  }));
+
+  const bookOptions = books
+    .filter((b) => b.available_copies > 0)
+    .map((b) => ({
+      value: b.id,
+      label: `${b.title} by ${b.author} (${b.available_copies} copies)`,
+    }));
+
   const formik = useFormik({
     initialValues: {
-      user_id: "",
-      book_id: "",
-      borrow_date: "",
+      user_id: null,
+      book_id: null,
     },
     validationSchema: Yup.object({
       user_id: Yup.number().required("User is required"),
       book_id: Yup.number().required("Book is required"),
     }),
-    onSubmit: (values, { resetForm }) => {
-      setPendingValues({ values, resetForm });
+    onSubmit: (values) => {
+      setPendingValues(values);
       setConfirmOpen(true);
     },
   });
 
   const handleConfirm = async () => {
     setConfirmOpen(false);
-    if (!pendingValues) return;
     try {
-      const res = await axios.post("/api/borrows", pendingValues.values);
+      const res = await axios.post("/api/borrows", pendingValues);
       onAdd(res.data);
-      pendingValues.resetForm();
+      formik.resetForm();
+      setPendingValues(null);
     } catch (err) {
-      console.error("Failed to borrow book:", err);
+      console.error("Borrow failed:", err);
+      setError("⚠️ Could not borrow. Book may be unavailable.");
     }
-    setPendingValues(null);
   };
 
   const handleCancel = () => {
@@ -51,51 +63,52 @@ function BorrowBook({ onAdd }) {
   };
 
   return (
-    <>
+    <div className="p-3 shadow-sm border rounded bg-light">
       <form onSubmit={formik.handleSubmit}>
-        <h2>Borrow Book</h2>
-        <select
-          name="user_id"
-          value={formik.values.user_id}
-          onChange={formik.handleChange}
-        >
-          <option value="">Select User</option>
-          {users.map((u) => (
-            <option key={u.id} value={u.id}>
-              {u.name}
-            </option>
-          ))}
-        </select>
+        <div className="mb-3">
+          <label className="form-label">Choose User</label>
+          <Select
+            options={userOptions}
+            onChange={(option) =>
+              formik.setFieldValue("user_id", option?.value || null)
+            }
+            onBlur={() => formik.setFieldTouched("user_id", true)}
+            placeholder="Search by name or email"
+          />
+          {formik.touched.user_id && formik.errors.user_id && (
+            <div className="text-danger">{formik.errors.user_id}</div>
+          )}
+        </div>
 
-        <select
-          name="book_id"
-          value={formik.values.book_id}
-          onChange={formik.handleChange}
-        >
-          <option value="">Select Book</option>
-          {books.map((b) => (
-            <option key={b.id} value={b.id}>
-              {b.title}
-            </option>
-          ))}
-        </select>
+        <div className="mb-3">
+          <label className="form-label">Choose Book</label>
+          <Select
+            options={bookOptions}
+            onChange={(option) =>
+              formik.setFieldValue("book_id", option?.value || null)
+            }
+            onBlur={() => formik.setFieldTouched("book_id", true)}
+            placeholder="Search available books"
+          />
+          {formik.touched.book_id && formik.errors.book_id && (
+            <div className="text-danger">{formik.errors.book_id}</div>
+          )}
+        </div>
 
-        <input
-          type="date"
-          name="borrow_date"
-          value={formik.values.borrow_date}
-          onChange={formik.handleChange}
-        />
+        {error && <div className="alert alert-danger">{error}</div>}
 
-        <button type="submit">Borrow</button>
+        <button type="submit" className="btn btn-primary w-100">
+          Borrow Book
+        </button>
       </form>
+
       <ConfirmDialog
         open={confirmOpen}
-        message="Are you sure you want to borrow this book?"
+        message="Confirm borrowing this book?"
         onConfirm={handleConfirm}
         onCancel={handleCancel}
       />
-    </>
+    </div>
   );
 }
 
