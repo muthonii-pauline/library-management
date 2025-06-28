@@ -1,6 +1,10 @@
 import { useState } from "react";
 import axios from "axios";
 
+// Use env variable or fallback to localhost:5555 for local dev
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:5555";
+
 function BookList({ books, setBooks }) {
   const [search, setSearch] = useState("");
   const [editingId, setEditingId] = useState(null);
@@ -31,7 +35,10 @@ function BookList({ books, setBooks }) {
 
   const handleUpdate = async () => {
     try {
-      const res = await axios.put(`/api/books/${editingId}`, editedBook);
+      const res = await axios.put(
+        `${API_BASE_URL}/api/books/${editingId}`,
+        editedBook
+      );
       setBooks(books.map((b) => (b.id === editingId ? res.data : b)));
       setEditingId(null);
     } catch (err) {
