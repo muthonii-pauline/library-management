@@ -136,10 +136,7 @@ function Users() {
 
       <div className="d-flex flex-wrap gap-4 justify-content-center">
         {/* Add Form */}
-        <div
-          className="card shadow-sm p-3"
-          style={{ minWidth: "280px", flex: "0 0 30%" }}
-        >
+        <div className="card shadow-sm p-3" style={{ minWidth: "280px", flex: "0 0 30%" }}>
           <h5 className="mb-3">Add New User</h5>
           <form onSubmit={triggerAddConfirm} className="d-grid gap-2">
             <input
@@ -264,9 +261,7 @@ function Users() {
                           </button>
                           <button
                             className="btn btn-sm btn-danger"
-                            onClick={() =>
-                              triggerDeleteConfirm(user.id, user.name)
-                            }
+                            onClick={() => triggerDeleteConfirm(user.id, user.name)}
                           >
                             Delete
                           </button>

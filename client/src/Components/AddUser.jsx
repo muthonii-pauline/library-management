@@ -43,45 +43,51 @@ function AddUser({ onAdd }) {
   };
 
   return (
-    <>
-      <form className="mb-4" onSubmit={formik.handleSubmit}>
-        <input
-          name="name"
-          placeholder="Full Name"
-          className="form-control mb-2"
-          value={formik.values.name}
-          onChange={formik.handleChange}
-        />
-        {formik.touched.name && formik.errors.name && (
-          <small className="text-danger">{formik.errors.name}</small>
-        )}
-
-        <input
-          name="email"
-          type="email"
-          placeholder="Email Address"
-          className="form-control mb-2"
-          value={formik.values.email}
-          onChange={formik.handleChange}
-        />
-        {formik.touched.email && formik.errors.email && (
-          <small className="text-danger">{formik.errors.email}</small>
-        )}
-
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <button type="submit" className="btn btn-primary">
-            Register User
-          </button>
+    <div className="p-3 shadow-sm border rounded bg-light">
+      <form onSubmit={formik.handleSubmit}>
+        <div className="mb-3">
+          <label className="form-label">Full Name</label>
+          <input
+            name="name"
+            className="form-control"
+            placeholder="Enter full name"
+            value={formik.values.name}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+          />
+          {formik.touched.name && formik.errors.name && (
+            <div className="text-danger">{formik.errors.name}</div>
+          )}
         </div>
+
+        <div className="mb-3">
+          <label className="form-label">Email Address</label>
+          <input
+            name="email"
+            type="email"
+            className="form-control"
+            placeholder="Enter email address"
+            value={formik.values.email}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+          />
+          {formik.touched.email && formik.errors.email && (
+            <div className="text-danger">{formik.errors.email}</div>
+          )}
+        </div>
+
+        <button type="submit" className="btn btn-primary w-100">
+          Register User
+        </button>
       </form>
 
       <ConfirmDialog
         open={confirmOpen}
-        message={`Confirm registering "${pendingValues?.name}" as a new library user?`}
+        message={`Confirm registering "${pendingValues?.name}" as a new user?`}
         onConfirm={handleConfirm}
         onCancel={handleCancel}
       />
-    </>
+    </div>
   );
 }
 
