@@ -5,6 +5,7 @@
 from flask import request, render_template
 from flask_restful import Resource
 from datetime import datetime
+from flask import jsonify
 
 from config import app, db, api, migrate
 
@@ -186,9 +187,14 @@ api.add_resource(BorrowReturn, '/api/borrows/<int:id>/return')
 def index():
     return render_template("index.html")
 
+
+
 @app.errorhandler(404)
 def not_found(e):
+    if request.path.startswith('/api/'):
+        return jsonify({"error": "Not Found"}), 404
     return render_template("index.html")
+
 
 # === Local Dev ===
 

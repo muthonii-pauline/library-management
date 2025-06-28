@@ -1,26 +1,14 @@
 services:
   - type: web
-    name: library-backend
+    name: backend
     env: python
-    plan: free
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app  # <== Fixed this line!
-    envVars:
-      - key: DATABASE_URL
-        fromDatabase:
-          name: library-db
-          property: connectionString
-    autoDeploy: true
-    repo: https://github.com/muthonii-pauline/library-management
-    branch: main
-    rootDir: server
+    buildCommand: pip install -r server/requirements.txt
+    startCommand: python server/app.py
+    rootDirectory: ./server
 
-  - type: web
-    name: library-frontend
+  - type: static
+    name: frontend
     env: static
     buildCommand: npm install && npm run build
-    staticPublishPath: dist
-    autoDeploy: true
-    repo: https://github.com/muthonii-pauline/library-management
-    branch: main
-    rootDir: client
+    publishDirectory: client/build
+    rootDirectory: ./client
