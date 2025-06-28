@@ -13,8 +13,6 @@ from config import app, db, api, migrate
 # === Import Models ===
 from models import User, Book, Borrow
 
-CORS(app)
-
 # === Serializers ===
 
 def serialize_user(user):
@@ -176,13 +174,6 @@ class BorrowReturn(Resource):
         borrow.book.available_copies += 1
         db.session.commit()
         return serialize_borrow(borrow), 200
-    
-from flask_migrate import upgrade
-
-@app.before_first_request
-def run_migrations():
-    upgrade()
-
 
 # === Register Routes ===
 
@@ -204,24 +195,6 @@ def not_found(e):
     if request.path.startswith('/api/'):
         return jsonify({"error": "Not Found"}), 404
     return render_template("index.html")
-
-@app.before_first_request
-def seed_and_migrate():
-    from flask_migrate import upgrade
-    upgrade()  
-    if not User.query.first():
-        print("Seeding database...")
-
-        u1 = User(name="Alice", email="alice@example.com")
-        u2 = User(name="Bob", email="bob@example.com")
-
-        b1 = Book(title="1984", author="George Orwell", genre="Dystopian", available_copies=5)
-        b2 = Book(title="To Kill a Mockingbird", author="Harper Lee", genre="Fiction", available_copies=3)
-
-        db.session.add_all([u1, u2, b1, b2])
-        db.session.commit()
-
-        print("Seeded users and books.")
 
 
 # === Local Dev ===
